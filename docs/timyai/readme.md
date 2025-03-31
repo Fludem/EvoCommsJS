@@ -15,12 +15,12 @@ The terminal actively sends data to the server, and the server actively pushes m
 
 ### **Connection Basics**
 
-1. **Protocol:** WebSocket (RFC6455 13).
+- Protocol: WebSocket (RFC6455 13).
    - Default port: 7788
    - Encryption: TLS. Off by default.
-2. **Data Format:** JSON.
-3. **Key-Value Case:** Lowercase.
-4. **Character Encoding:** UTF-8 for names and Chinese characters.
+- **Data Format:** JSON.
+- **Key-Value Case:** Lowercase.
+- **Character Encoding:** UTF-8 for names and Chinese characters.
 
 #### **Connection Initialisation**
 
