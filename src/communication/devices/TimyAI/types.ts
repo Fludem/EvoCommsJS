@@ -1,15 +1,22 @@
+import { DeviceInfo } from '@/types/terminal';
 import { Expose, Type } from 'class-transformer';
-import { DeviceInfo } from '../../../types/terminal';
 
-// --- Base Classes for Common Fields ---
-// We can create base classes if many requests/responses share fields
+// --- Base Types ---
 
-class TimyAIBaseRequest {
+// Base class for terminal-to-server messages (commands)
+export class TimyAITerminalCommandBase {
     @Expose({ name: 'cmd' })
-    command!: string; // Use definite assignment assertion or initialize in constructor
+    command!: string;
 }
 
-class TimyAIBaseResponse {
+// Base class for server-to-terminal messages (commands)
+export class TimyAIServerCommandBase {
+    @Expose({ name: 'cmd' })
+    command!: string;
+}
+
+// Base class for response messages
+export class TimyAIBaseResponse {
     @Expose({ name: 'ret' })
     responseTo!: string;
 
@@ -20,211 +27,192 @@ class TimyAIBaseResponse {
     errorMessage?: string | number;
 }
 
-// --- Request Payloads ---
+// --- Terminal -> Server Command Types ---
 
-export class TimyAIRegisterRequest extends TimyAIBaseRequest {
-    @Expose({ name: 'cmd' }) // Override if needed, or rely on base class
-    command: 'reg' = 'reg';
-
+export class TimyAIRegisterRequest extends TimyAITerminalCommandBase {
+    readonly command = 'reg' as const;
     @Expose({ name: 'sn' })
     serialNumber!: string;
-
     @Expose({ name: 'cpusn' })
     cpuSerialNumber!: string;
-
     @Expose({ name: 'devinfo' })
-    deviceInfo!: any; // Keep as any for flexibility, map separately
+    deviceInfo!: DeviceInfo;
 }
 
 export class TimyAILogRecord {
     @Expose({ name: 'enrollid' })
     enrollmentId!: number;
-
     @Expose({ name: 'time' })
     time!: string;
-
     @Expose({ name: 'mode' })
     mode!: number;
-
     @Expose({ name: 'inout' })
     inOut!: number;
-
     @Expose({ name: 'event' })
     event!: number;
-
     @Expose({ name: 'temp' })
-    temperature?: number; // Optional
-
+    temperature?: number;
     @Expose({ name: 'verifymode' })
-    verifyMode?: number; // Optional
-
+    verifyMode?: number;
     @Expose({ name: 'image' })
-    image?: string; // Optional
+    image?: string;
 }
 
-export class TimyAISendLogRequest extends TimyAIBaseRequest {
-    @Expose({ name: 'cmd' })
-    command: 'sendlog' = 'sendlog';
-
+export class TimyAISendLogRequest extends TimyAITerminalCommandBase {
+    readonly command = 'sendlog' as const;
     @Expose({ name: 'sn' })
     serialNumber!: string;
-
     @Expose({ name: 'count' })
     count!: number;
-
     @Expose({ name: 'logindex' })
     logIndex!: number;
-
     @Expose({ name: 'record' })
-    @Type(() => TimyAILogRecord) // Important for nested objects/arrays
+    @Type(() => TimyAILogRecord)
     records!: TimyAILogRecord[];
 }
 
-export class TimyAISendUserRequest extends TimyAIBaseRequest {
-    @Expose({ name: 'cmd' })
-    command: 'senduser' = 'senduser';
-
+export class TimyAISendUserRequest extends TimyAITerminalCommandBase {
+    readonly command = 'senduser' as const;
     @Expose({ name: 'enrollid' })
     enrollmentId!: number;
-
     @Expose({ name: 'name' })
     name!: string;
-
     @Expose({ name: 'backupnum' })
     backupNumber!: number;
-
     @Expose({ name: 'admin' })
     admin!: number;
-
     @Expose({ name: 'record' })
     record!: string | number;
 }
 
-export class TimyAISendQRCodeRequest extends TimyAIBaseRequest {
-    @Expose({ name: 'cmd' })
-    command: 'sendqrcode' = 'sendqrcode';
 
-    @Expose({ name: 'sn' })
-    serialNumber!: string;
+// Union type for all Terminal -> Server commands
+export type TerminalToServerCommand = 
+    | TimyAIRegisterRequest 
+    | TimyAISendLogRequest 
+    | TimyAISendUserRequest;
 
-    @Expose({ name: 'record' })
-    record!: string;
-}
+// --- Server -> Terminal Command Types ---
 
-// Server -> Terminal request
-export class TimyAIGetAllLogRequest extends TimyAIBaseRequest {
-    @Expose({ name: 'cmd' })
-    command: 'getalllog' = 'getalllog';
-
+export class TimyAIGetAllLogRequest extends TimyAIServerCommandBase {
+    readonly command = 'getalllog' as const;
     @Expose({ name: 'stn' })
-    startTransmission!: boolean; // Mapped from stn
-
+    startTransmission!: boolean;
     @Expose({ name: 'from' })
-    fromDate?: string; // Optional
-
+    fromDate?: string;
     @Expose({ name: 'to' })
-    toDate?: string; // Optional
+    toDate?: string;
 }
 
-// --- Response Payloads ---
+export class TimyAIContinueAllLogRequest extends TimyAIServerCommandBase {
+    readonly command = 'getalllog' as const;
+    @Expose({ name: 'stn' })
+    readonly startTransmission: boolean = false;
+}
+
+export class TimyAISetUserInfoRequest extends TimyAIServerCommandBase {
+    readonly command = 'setuserinfo' as const;
+    @Expose({ name: 'enrollid' })
+    enrollmentId!: number;
+    @Expose({ name: 'name' })
+    name!: string;
+    @Expose({ name: 'backupnum' })
+    backupNumber!: number;
+    @Expose({ name: 'admin' })
+    admin!: number;
+    @Expose({ name: 'record' })
+    record!: string | number; 
+}
+
+export class TimyAIGetUserListRequest extends TimyAIServerCommandBase {
+    readonly command = 'getuserlist' as const;
+    @Expose({ name: 'all' })
+    all!: boolean;
+}
+
+// Union type for all Server -> Terminal commands (used in sendCommand)
+export type ServerToTerminalCommand = 
+    | TimyAIGetAllLogRequest
+    | TimyAIContinueAllLogRequest
+    | TimyAISetUserInfoRequest
+    | TimyAIGetUserListRequest;
+
+// --- Terminal -> Server Response Types ---
 
 export class TimyAIRegisterResponse extends TimyAIBaseResponse {
-    @Expose({ name: 'ret' })
-    responseTo: 'reg' = 'reg';
-
+    readonly responseTo = 'reg' as const;
     @Expose({ name: 'cloudtime' })
     cloudTime!: string;
-
     @Expose({ name: 'nosenduser' })
     syncNewUsers!: boolean;
 }
 
 export class TimyAISendLogResponse extends TimyAIBaseResponse {
-    @Expose({ name: 'ret' })
-    responseTo: 'sendlog' = 'sendlog';
-
+    readonly responseTo = 'sendlog' as const;
     @Expose({ name: 'count' })
     count?: number;
-
     @Expose({ name: 'logindex' })
     logIndex?: number;
-
     @Expose({ name: 'cloudtime' })
     cloudTime?: string;
-
     @Expose({ name: 'access' })
     access?: number;
-
     @Expose({ name: 'message' })
     message?: string;
 }
 
 export class TimyAISendUserResponse extends TimyAIBaseResponse {
-    @Expose({ name: 'ret' })
-    responseTo: 'senduser' = 'senduser';
-
+    readonly responseTo = 'senduser' as const;
     @Expose({ name: 'cloudtime' })
     cloudTime?: string;
 }
 
-export class TimyAISendQRCodeResponse extends TimyAIBaseResponse {
-    @Expose({ name: 'ret' })
-    responseTo: 'sendqrcode' = 'sendqrcode';
-
-    @Expose({ name: 'access' })
-    access?: number;
-
-    @Expose({ name: 'enrollid' })
-    enrollmentId?: number;
-
-    @Expose({ name: 'username' })
-    username?: string;
-
-    @Expose({ name: 'message' })
-    message?: string;
-}
-
-// Type for the nested record in the GetAllLog response
 export class TimyAIGetAllLogRecord {
     @Expose({ name: 'enrollid' })
     enrollmentId!: number;
-
     @Expose({ name: 'name' })
-    name?: string; // Name might not always be present depending on device config/firmware
-
+    name?: string;
     @Expose({ name: 'time' })
     time!: string;
-
     @Expose({ name: 'mode' })
     mode!: number;
-
     @Expose({ name: 'inout' })
     inOut!: number;
-
     @Expose({ name: 'event' })
     event!: number;
 }
 
-// Terminal -> Server response to a GetAllLog request
 export class TimyAIGetAllLogResponse extends TimyAIBaseResponse {
-    @Expose({ name: 'ret' })
-    responseTo: 'getalllog' = 'getalllog';
-
+    readonly responseTo = 'getalllog' as const;
     @Expose({ name: 'sn' })
     serialNumber!: string;
-
-    // 'result' is inherited from TimyAIBaseResponse
-
     @Expose({ name: 'count' })
-    count!: number; // Total number of logs matching criteria
-
+    count!: number;
     @Expose({ name: 'from' })
-    from!: number; // Starting index of this batch (0-based)
-
+    from!: number;
     @Expose({ name: 'to' })
-    to!: number; // Ending index of this batch (0-based)
-
+    to!: number;
     @Expose({ name: 'record' })
     @Type(() => TimyAIGetAllLogRecord)
     records!: TimyAIGetAllLogRecord[];
-} 
+}
+
+// Union type for all known responses
+export type TimyAIResponse = 
+    | TimyAIRegisterResponse
+    | TimyAISendLogResponse
+    | TimyAISendUserResponse
+    | TimyAIGetAllLogResponse;
+
+// Union of all known message class instances
+export type KnownTimyAIMessageInstance = TerminalToServerCommand | ServerToTerminalCommand | TimyAIResponse;
+
+// Type for a constructor that creates one of our known message instances
+export type TimyAIMessageClass = new (...args: unknown[]) => KnownTimyAIMessageInstance;
+
+// For message parsing
+export type PossibleTimyAIMessage = KnownTimyAIMessageInstance | Record<string, unknown>;
+
+// Legacy alias to maintain compatibility during refactoring
+// Remove once all code has been updated to use ServerToTerminalCommand
+export type KnownTimyAIServerCommand = ServerToTerminalCommand; 
