@@ -20,9 +20,10 @@ Will have to support various protocols for receiving clocking times, managing em
 
 1. Clone the repository
 2. Install dependencies:
-   ```bash
+
+```bash
    npm install
-   ```
+```
 
 ## Development
 
