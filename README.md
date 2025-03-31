@@ -22,7 +22,7 @@ Will have to support various protocols for receiving clocking times, managing em
 2. Install dependencies:
 
 ```bash
-   npm install
+npm install
 ```
 
 ## Development
