@@ -5,6 +5,9 @@ not self install stuff.
 
 Will have to support various protocols for receiving clocking times, managing employee data, etc etc.
 
+## Communication Docs:
+- [TimyAI Protocol](docs/timyai/readme.md)
+
 ## Features
 
 - Support for multiple communication protocols
