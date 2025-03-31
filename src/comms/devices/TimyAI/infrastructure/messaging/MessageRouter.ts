@@ -1,9 +1,9 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
-import { IMessageRouter } from '../core/IMessageRouter';
-import { ITerminalConnectionManager } from '../core/ITerminalConnectionManager';
-import { ITimyAIMessageHandler } from '../handlers/ITimyAIMessageHandler';
-import { PossibleTimyAIMessage } from '../types';
+import { IMessageRouter } from '@/comms/devices/TimyAI/application/interfaces/IMessageRouter';
+import { ITimyAIMessageHandler } from '@/comms/devices/TimyAI/application/interfaces/ITimyAIMessageHandler';
+import { PossibleTimyAIMessage } from '@/comms/devices/TimyAI/types/shared';
+import { ITerminalConnectionManager } from '@/comms/devices/TimyAI/application/interfaces/ITerminalConnectionManager';
 
 export class MessageRouter implements IMessageRouter {
   private requestHandlers: Map<string, ITimyAIMessageHandler>;

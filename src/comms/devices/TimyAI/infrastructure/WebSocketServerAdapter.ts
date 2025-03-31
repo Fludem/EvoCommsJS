@@ -1,12 +1,12 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { EventEmitter } from 'events';
-import { IMessageParser } from '../core/IMessageParser';
-import { IMessageRouter } from '../core/IMessageRouter';
-import { ITerminalConnectionManager } from '../core/ITerminalConnectionManager';
 import { createLogger } from '../../../../utils/logger';
+import { IMessageParser } from '../application/interfaces/IMessageParser';
+import { IMessageRouter } from '../application/interfaces/IMessageRouter';
+import { ITerminalConnectionManager } from '../application/interfaces/ITerminalConnectionManager';
 
 export class WebSocketServerAdapter extends EventEmitter {
-  private wss?: WebSocketServer;
+  private wss: WebSocketServer;
   private readonly logger = createLogger('WebSocketServer');
   
   constructor(
@@ -17,27 +17,26 @@ export class WebSocketServerAdapter extends EventEmitter {
   ) {
     super();
     
+    this.logger.debug({ port }, 'Initializing WebSocket server');
+    this.wss = new WebSocketServer({ port });
+    this._setupServer();
   }
 
-  private _setupServer(): WebSocketServer {
-    this.logger.info({ port: this.port}, 'Instantiating WebSocketServer and mapping events');
-    const pendingServer = new WebSocketServer({ port: this.port, autoPong: true, backlog: 10000 });
-    pendingServer.on('listening', () => {
+  private _setupServer(): void {
+    // Server events
+    this.wss.on('listening', () => {
       this.logger.info({ port: this.port }, 'WebSocket server listening');
       this.emit('listening', this.port);
     });
 
-    pendingServer.on('connection', (ws: WebSocket) => {
+    this.wss.on('connection', (ws: WebSocket) => {
       this._handleNewConnection(ws);
     });
 
-      pendingServer.on('error', (error: Error) => {
-      this.logger.error({ err: error }, 'WebSocket server error');
+    this.wss.on('error', (error: Error) => {
+      this.logger.error({ err: error, port: this.port }, 'WebSocket server error');
       this.emit('error', error);
     });
-
-    this.wss = pendingServer;
-    return pendingServer;
   }
 
   private _handleNewConnection(ws: WebSocket): void {

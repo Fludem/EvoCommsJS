@@ -1,5 +1,5 @@
-import { TimyAIServer } from './communication/devices/TimyAI/TimyAIServer';
-import { Terminal } from './types/terminal';
+import { TimyAIServer } from './comms/devices/TimyAI/TimyAIServer';
+import { TimyTerminal } from './comms/devices/TimyAI/types/shared';
 
 export class Server {
   private protocolServers: Map<string, any> = new Map();
@@ -11,7 +11,7 @@ export class Server {
   }
 
   private setupEventHandlers(): void {
-    this.timyServer.on('terminalRegistered', (terminal: Terminal) => {
+    this.timyServer.on('terminalRegistered', (terminal: TimyTerminal) => {
       console.log('Main Server: Terminal registered:', terminal.serialNumber);
       // Handle terminal registration (e.g., save to DB, update status)
     });

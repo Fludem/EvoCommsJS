@@ -1,8 +1,8 @@
 import { WebSocket } from 'ws';
 import { instanceToPlain } from 'class-transformer';
-import { ITerminalConnection } from '../core/ITerminalConnection';
-import { ServerToTerminalCommand } from '../types';
 import { createLogger } from '../../../../utils/logger';
+import { ServerToTerminalCommand } from '../types/shared';
+import { ITerminalConnection } from '../application/interfaces/ITerminalConnection';
 
 export class TerminalConnection implements ITerminalConnection {
   private readonly logger = createLogger('TerminalConnection');

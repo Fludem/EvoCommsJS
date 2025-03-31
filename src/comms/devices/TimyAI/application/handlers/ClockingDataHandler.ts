@@ -1,8 +1,9 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { instanceToPlain } from 'class-transformer';
-import { ITimyAIMessageHandler } from './ITimyAIMessageHandler';
-import { TimyAISendLogRequest, TimyAISendLogResponse } from '../types';
+import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
+import { TimyAISendLogRequest } from '../../types/commands';
+import { TimyAISendLogResponse } from '../../types/responses';
 
 export class ClockingDataHandler implements ITimyAIMessageHandler {
     handle(ws: WebSocket, message: TimyAISendLogRequest, protocolEmitter: EventEmitter): void {

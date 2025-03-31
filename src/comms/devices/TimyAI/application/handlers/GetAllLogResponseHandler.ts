@@ -1,8 +1,9 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { instanceToPlain } from 'class-transformer';
-import { ITimyAIMessageHandler } from './ITimyAIMessageHandler';
-import { TimyAIGetAllLogResponse, TimyAIContinueAllLogRequest } from '../types';
+import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
+import { TimyAIContinueAllLogRequest } from '../../types/commands';
+import { TimyAIGetAllLogResponse } from '../../types/responses';
 
 export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
     

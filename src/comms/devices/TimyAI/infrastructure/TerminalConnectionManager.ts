@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
-import { ITerminalConnectionManager } from '../core/ITerminalConnectionManager';
-import { ITerminalConnection } from '../core/ITerminalConnection';
+import { ITerminalConnectionManager } from '@/comms/devices/TimyAI/application/interfaces/ITerminalConnectionManager';
+import { ITerminalConnection } from '@/comms/devices/TimyAI/application/interfaces/ITerminalConnection';
 import { TerminalConnection } from './TerminalConnection';
 
 export class TerminalConnectionManager extends EventEmitter implements ITerminalConnectionManager {

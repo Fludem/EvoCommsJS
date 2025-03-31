@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { PossibleTimyAIMessage } from '../types';
+import { PossibleTimyAIMessage } from "@/comms/devices/TimyAI/types/shared";
 
 export interface IMessageRouter {
   /**

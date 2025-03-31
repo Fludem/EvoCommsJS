@@ -1,12 +1,16 @@
 import { EventEmitter } from 'events';
-import { ServerToTerminalCommand } from './types';
-import { ITerminalConnectionManager } from './core/ITerminalConnectionManager';
+import dotenv from 'dotenv';
+import { ServerToTerminalCommand } from './types/shared';
 import { TerminalConnectionManager } from './infrastructure/TerminalConnectionManager';
-import { MessageParser } from './infrastructure/MessageParser';
-import { MessageRouter } from './infrastructure/MessageRouter';
+import { MessageParser } from './infrastructure/messaging/MessageParser';
+import { MessageRouter } from './infrastructure/messaging/MessageRouter';
 import { WebSocketServerAdapter } from './infrastructure/WebSocketServerAdapter';
-import { HandlerFactory } from './application/HandlerFactory';
+import { HandlerFactory } from './application/factories/HandlerFactory';
 import { createLogger } from '../../../utils/logger';
+import { ITerminalConnectionManager } from './application/interfaces/ITerminalConnectionManager';
+
+// Load environment variables
+dotenv.config();
 
 /**
  * TimyAI Server - Main entry point for handling TimyAI terminals
@@ -15,7 +19,8 @@ import { createLogger } from '../../../utils/logger';
  * to the complex subsystems of the TimyAI communication protocol.
  */
 export class TimyAIServer extends EventEmitter {
-  private readonly PORT = 7788;
+  // Read port from environment variable with fallback to 7788
+  private readonly PORT = parseInt(process.env.TIMYAI_PORT || '7788', 10);
   private readonly connectionManager: ITerminalConnectionManager;
   private readonly wsServer: WebSocketServerAdapter;
   private readonly logger = createLogger('TimyAIServer');
@@ -47,10 +52,12 @@ export class TimyAIServer extends EventEmitter {
     );
     
     this._forwardEvents(this.wsServer);
+
+    this.logger.info({ port: this.PORT }, 'TimyAI server initialized');
   }
 
   public start(): void {
-    this.logger.info('TimyAI server handler started');
+    this.logger.info('TimyAI server handler started.');
     this.wsServer.start();
   }
 

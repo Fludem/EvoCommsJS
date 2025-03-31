@@ -1,16 +1,17 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { instanceToPlain } from 'class-transformer';
-import { ITimyAIMessageHandler } from './ITimyAIMessageHandler';
-import { Terminal } from '../../../../types/terminal';
-import { TimyAIRegisterRequest, TimyAIRegisterResponse } from '../types';
+import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
+import { TimyAIRegisterRequest } from '../../types/commands';
+import { TimyAIRegisterResponse } from '../../types/responses';
+import { TimyTerminal } from '../../types/shared';
 
 export class RegistrationHandler implements ITimyAIMessageHandler {
     
 
     handle(ws: WebSocket, message: TimyAIRegisterRequest, protocolEmitter: EventEmitter, connectedTerminals: Map<string, WebSocket>): void {
         
-        const terminal: Terminal = {
+        const terminal: TimyTerminal = {
             serialNumber: message.serialNumber,
             cpuSerialNumber: message.cpuSerialNumber,
             deviceInfo: message.deviceInfo

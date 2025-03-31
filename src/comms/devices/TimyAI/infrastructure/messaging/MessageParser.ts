@@ -1,17 +1,8 @@
 import { plainToInstance } from 'class-transformer';
-import { IMessageParser } from '../core/IMessageParser';
-import { 
-  PossibleTimyAIMessage,
-  TimyAIMessageClass,
-  TimyAIRegisterRequest,
-  TimyAISendLogRequest,
-  TimyAISendUserRequest,
-  TimyAIGetAllLogResponse,
-  TimyAIGetAllLogRequest,
-  TimyAIContinueAllLogRequest,
-  TimyAISetUserInfoRequest,
-  TimyAIGetUserListRequest
-} from '../types';
+import { IMessageParser } from '../../application/interfaces/IMessageParser';
+import { TimyAIRegisterRequest, TimyAISendLogRequest, TimyAISendUserRequest, TimyAIGetAllLogRequest, TimyAIContinueAllLogRequest, TimyAISetUserInfoRequest, TimyAIGetUserListRequest } from '../../types/commands';
+import { TimyAIGetAllLogResponse } from '../../types/responses';
+import { PossibleTimyAIMessage, TimyAIMessageClass } from '../../types/shared';
 
 export class MessageParser implements IMessageParser {
   parseMessage(data: Buffer): {

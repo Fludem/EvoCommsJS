@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { ServerToTerminalCommand } from '../types';
+import { ServerToTerminalCommand } from '@/comms/devices/TimyAI/types/shared';
 
 export interface ITerminalConnection {
   /**
