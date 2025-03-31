@@ -1581,6 +1581,7 @@ The server sends this message to get the terminal date and time.
 ### **27\. QR Code Sending (sendqrcode)**
 
 The terminal sends this message to send a QR code.
+This will not be implemented until some time in the future.
 
 #### **Request**
 
