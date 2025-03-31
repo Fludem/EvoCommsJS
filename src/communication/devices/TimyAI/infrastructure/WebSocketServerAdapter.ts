@@ -6,7 +6,7 @@ import { ITerminalConnectionManager } from '../core/ITerminalConnectionManager';
 import { createLogger } from '../../../../utils/logger';
 
 export class WebSocketServerAdapter extends EventEmitter {
-  private wss: WebSocketServer;
+  private wss?: WebSocketServer;
   private readonly logger = createLogger('WebSocketServer');
   
   constructor(
@@ -17,25 +17,27 @@ export class WebSocketServerAdapter extends EventEmitter {
   ) {
     super();
     
-    this.wss = new WebSocketServer({ port });
-    this._setupServer();
   }
 
-  private _setupServer(): void {
-    // Server events
-    this.wss.on('listening', () => {
+  private _setupServer(): WebSocketServer {
+    this.logger.info({ port: this.port}, 'Instantiating WebSocketServer and mapping events');
+    const pendingServer = new WebSocketServer({ port: this.port, autoPong: true, backlog: 10000 });
+    pendingServer.on('listening', () => {
       this.logger.info({ port: this.port }, 'WebSocket server listening');
       this.emit('listening', this.port);
     });
 
-    this.wss.on('connection', (ws: WebSocket) => {
+    pendingServer.on('connection', (ws: WebSocket) => {
       this._handleNewConnection(ws);
     });
 
-    this.wss.on('error', (error: Error) => {
+      pendingServer.on('error', (error: Error) => {
       this.logger.error({ err: error }, 'WebSocket server error');
       this.emit('error', error);
     });
+
+    this.wss = pendingServer;
+    return pendingServer;
   }
 
   private _handleNewConnection(ws: WebSocket): void {
@@ -44,6 +46,10 @@ export class WebSocketServerAdapter extends EventEmitter {
     // Connection events
     ws.on('message', (data: Buffer) => {
       this._handleMessage(ws, data);
+    });
+
+    ws.on('ping', (data: Buffer) => {
+      this.logger.debug({ data }, 'Ping received');
     });
 
     ws.on('close', (code: number, reason: Buffer) => {
@@ -101,6 +107,7 @@ export class WebSocketServerAdapter extends EventEmitter {
    */
   start(): void {
     this.logger.debug('WebSocket server already started on instantiation');
+    this._setupServer();
   }
 
   /**
@@ -109,7 +116,7 @@ export class WebSocketServerAdapter extends EventEmitter {
   stop(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.logger.info('Stopping WebSocket server');
-      this.wss.close((err) => {
+      this.wss?.close((err) => {
         if (err) {
           this.logger.error({ err }, 'Error closing WebSocket server');
           reject(err);

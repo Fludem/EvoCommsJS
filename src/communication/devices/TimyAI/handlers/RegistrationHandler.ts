@@ -17,7 +17,7 @@ export class RegistrationHandler implements ITimyAIMessageHandler {
         };
 
         connectedTerminals.set(terminal.serialNumber, ws);
-        console.log(`Terminal registered: ${terminal.serialNumber} (${message.deviceInfo.modelName})`);
+        console.log(`Terminal registered: ${terminal.serialNumber} (${message.deviceInfo.modelName ?? 'Unknown Model'})`);
 
         const responseInstance = new TimyAIRegisterResponse();
         responseInstance.commandSuccessful = true;
