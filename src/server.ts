@@ -26,11 +26,6 @@ export class Server {
       // Handle user data (e.g., update local user cache/DB)
     });
 
-    this.timyServer.on('qrCodeReceived', (data: any) => {
-      console.log('Main Server: QR Code received from terminal:', data.terminalSN);
-      // Handle QR code (e.g., validate, grant access, log event)
-    });
-
     this.timyServer.on('terminalDisconnected', (serialNumber: string) => {
       console.log('Main Server: Terminal disconnected:', serialNumber);
       // Handle terminal disconnection (e.g., update status in DB, log event)
