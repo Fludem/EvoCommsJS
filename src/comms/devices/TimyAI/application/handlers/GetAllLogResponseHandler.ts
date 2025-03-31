@@ -5,12 +5,20 @@ import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
 import { TimyAIContinueAllLogRequest } from '../../types/commands';
 import { TimyAIGetAllLogResponse } from '../../types/responses';
 
+/**
+ * Handles the response to a getAllLog request
+ */
 export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
-    
+    /**
+     * Handle a getAllLog response
+     * @param ws - The WebSocket connection
+     * @param message - The getAllLog response
+     * @param protocolEmitter - The event emitter for the protocol
+     */
     handle(ws: WebSocket, message: TimyAIGetAllLogResponse, protocolEmitter: EventEmitter): void {
         if (!message.commandSuccessful) {
             console.error(`GetAllLog failed for terminal ${message.serialNumber}: ${message.errorMessage}`);
-            // Potentially emit a failure event
+            // probably emit a failure event
             protocolEmitter.emit('getAllLogError', { 
                 terminalSN: message.serialNumber, 
                 error: message.errorMessage 
@@ -23,7 +31,10 @@ export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
         // Process the received records
         for (const record of message.records) {
             console.log(`  Log: ID=${record.enrollmentId}, Name=${record.name || 'N/A'}, Time=${record.time}`);
-            // Here you would typically save the log record to a database or process it further
+            /**
+             * @todo
+             * Save the log record to DB and send to Evo
+             */
         }
         
         // Emit an event with the batch (optional)
@@ -35,7 +46,7 @@ export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
             total: message.count
          });
 
-        // Check if more logs are expected (indices are 0-based)
+        // Check if more logs are expected (indexes are 0-based)
         const moreLogsExist = message.to < message.count - 1;
 
         if (moreLogsExist) {

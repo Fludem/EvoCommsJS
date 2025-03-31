@@ -1,6 +1,9 @@
 import { WebSocket } from 'ws';
 import { PossibleTimyAIMessage } from "@/comms/devices/TimyAI/types/shared";
 
+/**
+ * Routes messages to the appropriate handler
+ */
 export interface IMessageRouter {
   /**
    * Route a message to the appropriate handler

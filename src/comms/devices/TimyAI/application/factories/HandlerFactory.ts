@@ -4,7 +4,14 @@ import { ClockingDataHandler } from '../handlers/ClockingDataHandler';
 import { UserDataHandler } from '../handlers/UserDataHandler';
 import { GetAllLogResponseHandler } from '../handlers/GetAllLogResponseHandler';
 
+/**
+ * Factory for creating message handlers
+ */
 export class HandlerFactory {
+  /**
+   * Create request handlers
+   * @returns A map of request handlers
+   */
   static createRequestHandlers(): Map<string, ITimyAIMessageHandler> {
     const handlers = new Map<string, ITimyAIMessageHandler>();
     
@@ -15,6 +22,10 @@ export class HandlerFactory {
     return handlers;
   }
 
+  /**
+   * Create response handlers
+   * @returns A map of response handlers
+   */
   static createResponseHandlers(): Map<string, ITimyAIMessageHandler> {
     const handlers = new Map<string, ITimyAIMessageHandler>();
     

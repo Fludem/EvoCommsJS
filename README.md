@@ -1,19 +1,20 @@
 # EvoCommsJS
 
-A Node.js service for handling multiple clocking machine communications. This service supports various protocols for receiving clocking times, managing employee data, and handling biometric data.
+WIP Node.js service for handling multiple clocking machine comms. Will be specifically for Evotime and
+not self install stuff.
+
+Will have to support various protocols for receiving clocking times, managing employee data, etc etc.
 
 ## Features
 
 - Support for multiple communication protocols
 - Employee data management
-- Biometric data handling
-- Clocking time processing
-- TypeScript for type safety
+- Biometric template syncing/sharing
+- Handling Clockings
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+- Node.js (v20or higher)
 
 ## Installation
 
@@ -50,15 +51,32 @@ npm start
 ## Project Structure
 
 ```
-src/
-├── protocols/     # Protocol implementations
-├── services/      # Business logic services
-├── types/         # TypeScript type definitions
-├── utils/         # Utility functions
-├── index.ts       # Application entry point
-└── server.ts      # Main server implementation
+EvoCommsJS/
+├── src/                         # Source files
+│   ├── comms/                   # Communication modules
+│   │   └── devices/             # Device-specific implementations
+│   │       └── TimyAI/          # TimyAI device implementation
+│   │           ├── application/ # Application layer (use cases)
+│   │           ├── core/        # Core business logic interfaces
+│   │           ├── infrastructure/ # Infrastructure implementations
+│   │           ├── types/       # TimyAI-specific type definitions
+│   │           └── TimyAIServer.ts # Main server class for TimyAI
+│   ├── types/                   # Global type definitions
+│   ├── utils/                   # Utility functions
+│   │   └── logger.ts            # Logging utility with BetterStack integration
+│   ├── index.ts                 # Application entry point
+│   └── server.ts                # Server setup and configuration
+├── .env                         # Environment configuration
+├── package.json                 # Dependencies and scripts
+├── tsconfig.json                # TypeScript configuration
+└── README.md                    # Project documentation
 ```
 
-## License
+Code should maintain clean architecture approach with clear separation of concerns, e.g:
 
-ISC
+- **Core**: Contains business logic interfaces and domain models
+- **Application**: Contains use cases and business logic implementations
+- **Infrastructure**: Contains external dependencies like databases, web services
+- **Types**: Contains shared type definitions
+- **Utils**: Contains shared utilities like logging
+

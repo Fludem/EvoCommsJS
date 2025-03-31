@@ -5,10 +5,20 @@ import { IMessageParser } from '../application/interfaces/IMessageParser';
 import { IMessageRouter } from '../application/interfaces/IMessageRouter';
 import { ITerminalConnectionManager } from '../application/interfaces/ITerminalConnectionManager';
 
+/**
+ * WebSocket server adapter
+ */
 export class WebSocketServerAdapter extends EventEmitter {
   private wss?: WebSocketServer;
   private readonly logger = createLogger('WebSocketServer');
   
+  /**
+   * Constructor
+   * @param port - The port to listen on
+   * @param messageParser - The message parser
+   * @param messageRouter - The message router
+   * @param connectionManager - The terminal connection manager
+   */
   constructor(
     private readonly port: number,
     private readonly messageParser: IMessageParser,
@@ -20,8 +30,10 @@ export class WebSocketServerAdapter extends EventEmitter {
     this.logger.debug({ port }, 'Initializing WebSocket server');
   }
 
+  /**
+   * Setup the WebSocket server
+   */
   private _setupServer(): void {
-    // Server events
     this.wss = new WebSocketServer({ port: this.port });
     
     this.wss.on('listening', () => {
@@ -39,6 +51,10 @@ export class WebSocketServerAdapter extends EventEmitter {
     });
   }
 
+  /**
+   * Handles a new terminal connection and adds event listeners
+   * @param ws - The WebSocket connection
+   */
   private _handleNewConnection(ws: WebSocket): void {
     this.logger.info('New terminal connection established');
     
@@ -60,6 +76,11 @@ export class WebSocketServerAdapter extends EventEmitter {
     });
   }
 
+  /**
+   * Handle a message event
+   * @param ws - The WebSocket connection
+   * @param data - The message data
+   */
   private _handleMessage(ws: WebSocket, data: Buffer): void {
     try {
       const { message, identifier, isRequest } = this.messageParser.parseMessage(data);
@@ -81,6 +102,12 @@ export class WebSocketServerAdapter extends EventEmitter {
     }
   }
 
+  /**
+   * Handle a connection close event
+   * @param ws - The WebSocket connection
+   * @param code - The code for the close event
+   * @param reason - The reason for the close event
+   */
   private _handleConnectionClose(ws: WebSocket, code: number, reason: Buffer): void {
     this.logger.info({ 
       code, 
@@ -90,6 +117,11 @@ export class WebSocketServerAdapter extends EventEmitter {
     this.connectionManager.removeConnection(ws);
   }
 
+  /**
+   * Handle a connection error event
+   * @param ws - The WebSocket connection
+   * @param error - The error that occurred
+   */
   private _handleConnectionError(ws: WebSocket, error: Error): void {
     this.logger.error({ err: error }, 'WebSocket connection error');
     

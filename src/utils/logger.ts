@@ -22,7 +22,9 @@ const loggerConfig = {
   },
 };
 
-// Configure pretty console formatting options
+/**
+ * Added cause console logs were in json lol
+ */
 const prettyConsoleOptions = {
   translateTime: 'dd-mm-yy HH:MM:ss',
   colorize: true,
@@ -36,7 +38,7 @@ if (token) {
         target: 'pino-pretty',
         options: {
           ...prettyConsoleOptions,
-          destination: 1, // stdout
+          destination: 1, // Destination 1 
         },
         level: logLevel
       },

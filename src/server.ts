@@ -10,25 +10,29 @@ export class Server {
     this.setupEventHandlers();
   }
 
+  /**
+   * Setup event handlers for the TimyAI server
+   * @todo add top level handlers for none device specific logic 
+   */
   private setupEventHandlers(): void {
     this.timyServer.on('terminalRegistered', (terminal: TimyTerminal) => {
       console.log('Main Server: Terminal registered:', terminal.serialNumber);
-      // Handle terminal registration (e.g., save to DB, update status)
+      // Top level event for when a terminal connects and sends reg command
     });
 
     this.timyServer.on('clockingReceived', (data: any) => {
       console.log('Main Server: Clocking received from terminal:', data.terminalSN);
-      // Handle clocking data (e.g., save to DB, process attendance)
+      // top level event for when a terminal sends a clocking
     });
 
     this.timyServer.on('userDataReceived', (data: any) => {
       console.log('Main Server: User data received:', data.enrollId);
-      // Handle user data (e.g., update local user cache/DB)
+      // top level event for when a terminal sends user data
     });
 
     this.timyServer.on('terminalDisconnected', (serialNumber: string) => {
       console.log('Main Server: Terminal disconnected:', serialNumber);
-      // Handle terminal disconnection (e.g., update status in DB, log event)
+      // top level event for when a terminal disconnects
     });
   }
 

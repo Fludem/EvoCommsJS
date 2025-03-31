@@ -4,7 +4,15 @@ import { TimyAIRegisterRequest, TimyAISendLogRequest, TimyAISendUserRequest } fr
 import { TimyAIGetAllLogResponse } from '../../types/responses';
 import { PossibleTimyAIMessage, TimyAIMessageClass } from '../../types/shared';
 
+/**
+ * Parses messages from a terminal into a typed message
+ */
 export class MessageParser implements IMessageParser {
+  /**
+   * Parse a message from a timy terminal into a typed message
+   * @param data - The message to parse
+   * @returns The parsed message
+   */
   parseMessage(data: Buffer): {
     message: PossibleTimyAIMessage;
     identifier: string | null;
@@ -22,6 +30,11 @@ export class MessageParser implements IMessageParser {
     return { message, identifier, isRequest };
   }
 
+  /**
+   * Parse the json data from a terminal into a plain object
+   * @param data - The message to parse
+   * @returns The parsed message
+   */
   private _parseJson(data: Buffer): Record<string, unknown> {
     try {
       const parsed = JSON.parse(data.toString('utf-8'));
@@ -34,6 +47,11 @@ export class MessageParser implements IMessageParser {
     }
   }
 
+  /**
+   * Identify the type of message
+   * @param message - The message to identify
+   * @returns The identifier and whether the message is a request
+   */
   private _identifyMessageType(message: Record<string, unknown>): { 
     identifier: string | null; 
     isRequest: boolean 
@@ -49,6 +67,13 @@ export class MessageParser implements IMessageParser {
     return { identifier: null, isRequest: false };
   }
 
+  /**
+   * Transform a plain object into a typed message
+   * @param plainObject - The plain object to transform
+   * @param identifier - The identifier of the message
+   * @param isRequest - Whether the message is a request
+   * @returns The typed message or the plain object if no mapping exists
+   */
   private _transformToTypedMessage(
     plainObject: Record<string, unknown>,
     identifier: string,
@@ -74,23 +99,26 @@ export class MessageParser implements IMessageParser {
     }
   }
 
+  /**
+   * Get the message class for the given identifier and request type
+   * @param identifier - The identifier of the message
+   * @param isRequest - Whether the message is a request
+   * @returns The message class or null if no mapping exists
+   */
   private _getMessageClass(
     identifier: string, 
     isRequest: boolean,
   ): TimyAIMessageClass | null {
     if (isRequest) {
-      // Determine if it's a terminal-to-server command or a server-to-terminal command
       switch (identifier) {
-        // Terminal-to-server commands
         case 'reg': return TimyAIRegisterRequest;
         case 'sendlog': return TimyAISendLogRequest;
         case 'senduser': return TimyAISendUserRequest;
         default: return null;
       }
-    } else { // It's a response
+    } else { 
       switch (identifier) {
         case 'getalllog': return TimyAIGetAllLogResponse;
-        // Add mappings for other expected responses here
         default: return null;
       }
     }

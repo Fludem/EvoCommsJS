@@ -5,10 +5,20 @@ import { ITimyAIMessageHandler } from '@/comms/devices/TimyAI/application/interf
 import { PossibleTimyAIMessage } from '@/comms/devices/TimyAI/types/shared';
 import { ITerminalConnectionManager } from '@/comms/devices/TimyAI/application/interfaces/ITerminalConnectionManager';
 
+/**
+ * Routes messages to the appropriate handler
+ */
 export class MessageRouter implements IMessageRouter {
   private requestHandlers: Map<string, ITimyAIMessageHandler>;
   private responseHandlers: Map<string, ITimyAIMessageHandler>;
   
+  /**
+   * Constructor
+   * @param eventEmitter - The event emitter for the protocol
+   * @param connectionManager - The terminal connection manager
+   * @param requestHandlers - The request handlers
+   * @param responseHandlers - The response handlers
+   */
   constructor(
     private readonly eventEmitter: EventEmitter,
     private readonly connectionManager: ITerminalConnectionManager,
@@ -19,6 +29,13 @@ export class MessageRouter implements IMessageRouter {
     this.responseHandlers = responseHandlers;
   }
 
+  /**
+   * Route a message to the appropriate handler
+   * @param ws - The WebSocket connection
+   * @param message - The incoming message
+   * @param identifier - The identifier of the message
+   * @param isRequest - Whether the message is a request
+   */
   routeMessage(
     ws: WebSocket, 
     message: PossibleTimyAIMessage, 

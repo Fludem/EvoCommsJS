@@ -9,17 +9,18 @@ import { HandlerFactory } from './application/factories/HandlerFactory';
 import { createLogger } from '../../../utils/logger';
 import { ITerminalConnectionManager } from './application/interfaces/ITerminalConnectionManager';
 
-// Load environment variables
 dotenv.config();
 
 /**
  * TimyAI Server - Main entry point for handling TimyAI terminals
  * 
- * This class implements the facade pattern, providing a simplified interface
- * to the complex subsystems of the TimyAI communication protocol.
+ * This class should be facade pattern for simplicity
+ * as it's quite complex and has many responsibilities
  */
 export class TimyAIServer extends EventEmitter {
-  // Read port from environment variable with fallback to 7788
+  /**
+   * Read port from environment variable with fallback to 7788
+   */
   private readonly PORT = parseInt(process.env.TIMYAI_PORT || '7788', 10);
   private readonly connectionManager: ITerminalConnectionManager;
   private readonly wsServer: WebSocketServerAdapter;
@@ -32,6 +33,10 @@ export class TimyAIServer extends EventEmitter {
     
     this._forwardEvents(this.connectionManager as unknown as EventEmitter);
     
+    /**
+     * @todo
+     * Prob switch to DI Framework and services
+     */
     const requestHandlers = HandlerFactory.createRequestHandlers();
     const responseHandlers = HandlerFactory.createResponseHandlers();
     
@@ -56,11 +61,17 @@ export class TimyAIServer extends EventEmitter {
     this.logger.info({ port: this.PORT }, 'TimyAI server initialized');
   }
 
+  /**
+   * Start the TimyAI server
+   */
   public start(): void {
     this.logger.info('TimyAI server handler started.');
     this.wsServer.start();
   }
 
+  /**
+   * Stop the TimyAI server
+   */
   public stop(): void {
     this.logger.info('Stopping TimyAI server...');
     this.wsServer.stop().catch(err => {
@@ -68,6 +79,10 @@ export class TimyAIServer extends EventEmitter {
     });
   }
 
+  /**
+   * Get all connected terminal serial numbers
+   * @returns An array of serial numbers
+   */
   public getConnectedTerminals(): string[] {
     return this.connectionManager.getConnectedTerminals();
   }
@@ -90,6 +105,7 @@ export class TimyAIServer extends EventEmitter {
 
   /**
    * Forward events from source to this EventEmitter
+   * @param source - The source event emitter
    */
   private _forwardEvents(source: EventEmitter): void {
     const forwardEvent = (event: string, ...args: unknown[]) => {

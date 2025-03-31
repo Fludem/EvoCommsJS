@@ -6,9 +6,16 @@ import { TimyAIRegisterRequest } from '../../types/commands';
 import { TimyAIRegisterResponse } from '../../types/responses';
 import { TimyTerminal } from '../../types/shared';
 
+/**
+ * Handles the registration of a TimyAI terminal
+ */
 export class RegistrationHandler implements ITimyAIMessageHandler {
-    
-
+    /**
+     * Handle a registration message usually sent when device connects
+     * @param ws - The WebSocket connection
+     * @param message - The registration message
+     * @param protocolEmitter - The event emitter for the protocol
+     */
     handle(ws: WebSocket, message: TimyAIRegisterRequest, protocolEmitter: EventEmitter, connectedTerminals: Map<string, WebSocket>): void {
         
         const terminal: TimyTerminal = {

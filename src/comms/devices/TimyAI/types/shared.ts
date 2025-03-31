@@ -46,15 +46,10 @@ export class TimyAIGetAllLogRecord {
     event!: number;
 }
         
-// Union of all known message class instances
 export type KnownTimyAIMessageInstance = TerminalToServerCommand | ServerToTerminalCommand | TimyAIResponse;
 
-// Type for a constructor that creates one of our known message instances
 export type TimyAIMessageClass = new (...args: unknown[]) => KnownTimyAIMessageInstance;
 
-// For message parsing
 export type PossibleTimyAIMessage = KnownTimyAIMessageInstance | Record<string, unknown>;
 
-// Legacy alias to maintain compatibility during refactoring
-// Remove once all code has been updated to use ServerToTerminalCommand
 export type KnownTimyAIServerCommand = ServerToTerminalCommand; 

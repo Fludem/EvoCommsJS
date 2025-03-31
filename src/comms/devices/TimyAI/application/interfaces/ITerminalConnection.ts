@@ -1,6 +1,9 @@
 import { WebSocket } from 'ws';
 import { ServerToTerminalCommand } from '@/comms/devices/TimyAI/types/shared';
 
+/**
+ * Represents a connection to a TimyAI terminal
+ */
 export interface ITerminalConnection {
   /**
    * Get the serial number of the connected terminal

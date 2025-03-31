@@ -5,25 +5,31 @@ import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
 import { TimyAISendLogRequest } from '../../types/commands';
 import { TimyAISendLogResponse } from '../../types/responses';
 
+/**
+ * Handles clocking data from a TimyAI terminal
+ */
 export class ClockingDataHandler implements ITimyAIMessageHandler {
+    /**
+     * Handle a clocking data message
+     * @param ws - The WebSocket connection
+     * @param message - The clocking data message
+     * @param protocolEmitter - The event emitter for the protocol
+     */
     handle(ws: WebSocket, message: TimyAISendLogRequest, protocolEmitter: EventEmitter): void {
-        // Use camelCase properties from the message instance
         console.log(`Received ${message.count} clocking(s) from ${message.serialNumber}`);
         
         protocolEmitter.emit('clockingReceived', {
             terminalSN: message.serialNumber,
-            clockings: message.records, // Use mapped name 'records'
+            clockings: message.records,
             logIndex: message.logIndex
         });
 
-        // Create response instance
         const responseInstance = new TimyAISendLogResponse();
         responseInstance.commandSuccessful = true;
         responseInstance.count = message.count;
         responseInstance.logIndex = message.logIndex;
         responseInstance.cloudTime = new Date().toISOString().replace('T', ' ').split('.')[0];
 
-        // Convert instance to plain object for sending
         const plainResponse = instanceToPlain(responseInstance);
         
         ws.send(JSON.stringify(plainResponse));
