@@ -1,10 +1,10 @@
 # **TimyAI Device Communication Protocol**
 
-## **Introduction**
+## Introduction
 
 This document describes the communication protocol between a TimyAI clocking machine (terminal) and the server. The protocol enables data exchange for operations such as user management, log retrieval, and device configuration.
 
-### **System Architecture**
+### System Architecture
 
 The system involves the following components:
 
@@ -13,38 +13,38 @@ The system involves the following components:
 
 The terminal actively sends data to the server, and the server actively pushes messages to the terminal. The communication flow is bi-directional.
 
-### **Connection Basics**
+### Connection Basics
 
-- Protocol: WebSocket (RFC6455 13).
+- Protocol: WebSocket [RFC6455 13](https://datatracker.ietf.org/doc/html/rfc6455).
    - Default port: 7788
    - Encryption: TLS. Off by default.
-- **Data Format:** JSON.
-- **Key-Value Case:** Lowercase.
-- **Character Encoding:** UTF-8 for names and Chinese characters.
+- Data Format: JSON.
+- Key-Value Case: Lowercase.
+- Character Encoding: UTF-8 for names and Chinese characters.
 
-#### **Connection Initialisation**
+#### Connection Initialisation
 
-The network communication is achieved using WebSocket protocol. The communication starts when a Terminal initiates a websocket connection with server. The Server listens for these connections on port 7788. 
+Network communication is done using websockets. It starts when a Terminal initiates a WebSocket connection with the server, which listens for these connections on port 7788 by default. 
 
-The terminal sends a 'reg' command when the connection is estabilished, this allows the server to identify the terminal.
+The terminal sends a 'reg' command when the connection is established, which allows the server to identify the terminal.
 
-#### **Communication Flow**
+#### Communication Flow
 
-Although websockets doesn't require messages to be sent in a [request -> | <- response] pattern, the timy devices do adopt this flow.
+Although websockets don't require messages to be sent in a [request -> | <- response] pattern, the timy devices adopt this flow.
 
-This means when a message(request) is sent, it's expected the receiver will respond(reply) with an appropriate response. For example the terminal may send a new clocking to the server, the terminal expects a response back from the server indicating wether or not it received the data or potentially rejected the data.
+This means that when a message(request) is sent, it's expected that the receiver will respond(reply) with an appropriate response. For example, the terminal may send a new clocking to the server. The terminal expects a response back from the server indicating whether or not it received the data or potentially rejected the data.
 
-Both the terminal and the server can send requests in the websocket session. However the requests sent by the terminal are not the same types of requests the server might send.
+Both the terminal and the server can send requests in the websocket session. However, the requests sent by the terminal are not the same types of requests the server might send.
 
-## **Terminal-Initiated Messages**
+## Terminal-Initiated Messages
 
-The terminal only sends messages with the purpose of giving data to the server. The server can also send messages, but these messages are commands that result in the terminal performing an action.
+The terminal only sends messages to give data to the server. The server can also send messages, but these messages are commands that result in the terminal performing an action.
 
-### **1\. Register**
+### 1\. Register
 
 The terminal sends this message to identify itself to the server.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -72,7 +72,7 @@ The terminal sends this message to identify itself to the server.
 }
 ``````
 
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -93,11 +93,11 @@ The terminal sends this message to identify itself to the server.
    "reason": "did not reg" // Message to display on the terminal screen  
   }
 ```
-### **2\. Send Logs (sendlog)**
+### 2\. Send Logs (sendlog)
 
 The terminal sends this message to transmit user logs (clocking data) to the server.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -130,7 +130,7 @@ The terminal sends this message to transmit user logs (clocking data) to the ser
 }
 ```
 
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -155,8 +155,11 @@ The terminal sends this message to transmit user logs (clocking data) to the ser
   }
 ```
 
-#### **Notes on Clockings:**
 
+> [!NOTE]  
+> Please see below for details on valid values of ambigious keys:
+ 
+```
 - enrollid \!= 0:
   - mode: 0 \= Fingerprint, 1 \= Card, 2 \= Password
   - inout: 0 \= In (Master Machine), 1 \= Out (Child Machine)
@@ -174,12 +177,13 @@ The terminal sends this message to transmit user logs (clocking data) to the ser
     - UI_MGLOG_ILLEGAL_REMOVE
     - UI_MGLOG_ALARM (Input alarm)
 - verifymode: 13 \= QR code verification
+```
 
-### **3\. Send User Information (senduser)**
+### 3\. Send User Information (senduser)
 
 The terminal sends this message to transmit new user information to the server (e.g., when a user is added via the keypad). This happens when the serer replied with 'senduser' as true/enabled.
 
-#### **Fingerprint Request**
+#### Fingerprint Request
 
 ```json
 {  
@@ -191,7 +195,7 @@ The terminal sends this message to transmit new user information to the server (
  "record": "kajgksjgaglas" // Fingerprint data (string, \<1620 for THbio3.0, \<1024 for THbio1.0)  
 }
 ```
-#### **RFID Card Request**
+#### RFID Card Request
 
 ```json
 {  
@@ -203,7 +207,7 @@ The terminal sends this message to transmit new user information to the server (
  "record": 2352253 // RFID card data  
 }
 ```
-#### **Password Request**
+#### Password Request
 
 ```json
 {  
@@ -215,7 +219,7 @@ The terminal sends this message to transmit new user information to the server (
  "record": 12345678 // Password (max 8 digits)  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -235,15 +239,15 @@ The terminal sends this message to transmit new user information to the server (
    "reason": 1  
   }
 ```
-## **Server-Initiated Messages**
+## Server-Initiated Messages
 
 The server typically sends messages that could be called 'commands'. The terminal on the other-hand only sends data to the server. 
 
-### **1\. Get User List (getuserlist)**
+### 1\. Get User List (getuserlist)
 
 The server sends this message to retrieve a list of users from the terminal. The terminal may need to send multiple responses if the user list is large.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -251,7 +255,7 @@ The server sends this message to retrieve a list of users from the terminal. The
  "stn": true // true for first request, false for subsequent responses  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:** (Example \- first response)  
 
@@ -325,11 +329,11 @@ The server sends this message to retrieve a list of users from the terminal. The
    "reason": 1  
   }
 ```
-### **2\. Get User Information (getuserinfo)**
+### 2\. Get User Information (getuserinfo)
 
 The server sends this message to retrieve detailed information for a specific user.
 
-#### **Fingerprint Request**
+#### Fingerprint Request
 
 ```json
 {  
@@ -338,7 +342,7 @@ The server sends this message to retrieve detailed information for a specific us
  "backupnum": 0  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -362,7 +366,7 @@ The server sends this message to retrieve detailed information for a specific us
    "reason": 1  
   }
 ```
-#### **Photo Request**
+#### Photo Request
 
 ```json
 {  
@@ -371,7 +375,7 @@ The server sends this message to retrieve detailed information for a specific us
  "backupnum": 50  
 }
 ```
-#### **Photo Response**
+#### Photo Response
 
 - **Success:**  
 
@@ -386,7 +390,7 @@ The server sends this message to retrieve detailed information for a specific us
    "record": "aabbccddeeffggddssiifdjdkjfkjdsjlkjal" // Base64 Photo  
   }
 ```
-#### **RFID Card Request**
+#### RFID Card Request
 
 ```json
 {  
@@ -395,7 +399,7 @@ The server sends this message to retrieve detailed information for a specific us
  "backupnum": 11  
 }
 ```
-#### **RFID Card Response**
+#### RFID Card Response
 
 - **Success:**  
 
@@ -419,7 +423,7 @@ The server sends this message to retrieve detailed information for a specific us
    "reason": 1  
   }
 ```
-#### **Password Request**
+#### Password Request
 
 ```json
 {  
@@ -428,7 +432,7 @@ The server sends this message to retrieve detailed information for a specific us
  "backupnum": 10  
 }
 ```
-#### **Password Response**
+#### Password Response
 
 - **Success:**  
 
@@ -452,11 +456,11 @@ The server sends this message to retrieve detailed information for a specific us
    "reason": 1  
   }
 ```
-### **3\. Set User Information (setuserinfo)**
+### 3\. Set User Information (setuserinfo)
 
 The server sends this message to add or modify user information on the terminal.
 
-#### **Fingerprint Request**
+#### Fingerprint Request
 
 ```json
 {  
@@ -468,7 +472,7 @@ The server sends this message to add or modify user information on the terminal.
  "record": "aabbccddeeffggddssiifdjdkjfkjdsjlkjalflsgsadg" // Fingerprint Data  
 }
 ```
-#### **Photo Request**
+#### Photo Request
 
 ```json
 {  
@@ -481,7 +485,7 @@ The server sends this message to add or modify user information on the terminal.
 }
 ```
 
-#### **Password Request**
+#### Password Request
 
 ```json
 {  
@@ -494,7 +498,7 @@ The server sends this message to add or modify user information on the terminal.
 }
 ```
 
-#### **RFID Card Request**
+#### RFID Card Request
 
 ```json
 {  
@@ -506,7 +510,7 @@ The server sends this message to add or modify user information on the terminal.
  "record": 2352253 // RFID Card Data  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -525,11 +529,11 @@ The server sends this message to add or modify user information on the terminal.
    "reason": 1  
   }
 ```
-### **4\. Delete User Information (deleteuser)**
+### 4\. Delete User Information (deleteuser)
 
 The server sends this message to delete user information from the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -538,7 +542,7 @@ The server sends this message to delete user information from the terminal.
  "backupnum": 0 // 0-9: Fingerprint, 10: Password, 11: Card, 12: All fingerprints, 13: All user data  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -557,11 +561,11 @@ The server sends this message to delete user information from the terminal.
    "reason": 1  
   }
 ```
-### **5\. Get User Name (getusername)**
+### 5\. Get User Name (getusername)
 
 The server sends this message to get user name.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -569,7 +573,7 @@ The server sends this message to get user name.
  "enrollid":1  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -589,11 +593,11 @@ The server sends this message to get user name.
    "reason":1  
   }
 ```
-### **6\. Set User Name (setusername)**
+### 6\. Set User Name (setusername)
 
 The server sends this message to set user name.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -611,7 +615,7 @@ The server sends this message to set user name.
  ]  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -630,11 +634,11 @@ The server sends this message to set user name.
    "reason":1  
   }
 ```
-### **7\. Enable User (enableuser)**
+### 7\. Enable User (enableuser)
 
 Server send message to enable user.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -643,7 +647,7 @@ Server send message to enable user.
  "enflag":1  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -666,7 +670,7 @@ Server send message to enable user.
 
 Server sends message to disable user.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -675,7 +679,7 @@ Server sends message to disable user.
  "enflag":0  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -694,18 +698,18 @@ Server sends message to disable user.
    "reason":1  
   }
 ```
-### **9\. Clean All Users (cleanuser)**
+### 9\. Clean All Users (cleanuser)
 
 The server sends this message to delete all users from the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "cleanuser"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -724,11 +728,11 @@ The server sends this message to delete all users from the terminal.
    "reason": 1  
   }
 ```
-### **10\. Get New Logs (getnewlog)**
+### 10\. Get New Logs (getnewlog)
 
 Server requests new logs from the terminal
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -736,7 +740,7 @@ Server requests new logs from the terminal
  "stn":true  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -821,11 +825,11 @@ Server requests new logs from the terminal
    "reason": 1  
   }
 ```
-### **11\. Get All Logs (getalllog)**
+### 11\. Get All Logs (getalllog)
 
 Server requests all logs from the terminal
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -835,7 +839,7 @@ Server requests all logs from the terminal
  "to":"2018-12-30" // optional to date  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -920,18 +924,18 @@ Server requests all logs from the terminal
    "reason": 1  
   }
 ```
-### **12\. Clean All Logs (cleanlog)**
+### 12\. Clean All Logs (cleanlog)
 
 The server sends this message to delete all logs from the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "cleanlog"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -950,18 +954,18 @@ The server sends this message to delete all logs from the terminal.
    "reason": 1  
   }
 ```
-### **13\. Initialize System (initsys)**
+### 13\. Initialize System (initsys)
 
 The server sends this message to initialize the terminal, deleting all users and logs (but keeping settings).
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "initsys"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -980,29 +984,29 @@ The server sends this message to initialize the terminal, deleting all users and
    "reason": 1  
   }
 ```
-### **14\. Reboot (reboot)**
+### 14\. Reboot (reboot)
 
 The server sends this message to reboot the terminal. The terminal reboots immediately and does not send a response.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "reboot"  
 }
 ```
-### **15\. Clean All Administrators (cleanadmin)**
+### 15\. Clean All Administrators (cleanadmin)
 
 The server sends this message to demote all administrator users to normal users.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "cleanadmin"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1021,11 +1025,11 @@ The server sends this message to demote all administrator users to normal users.
    "reason": 1  
   }
 ```
-### **16\. Set Time (settime)**
+### 16\. Set Time (settime)
 
 The server sends this message to set the date and time on the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1033,7 +1037,7 @@ The server sends this message to set the date and time on the terminal.
  "cloudtime": "2016-03-25 13:49:30"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1052,11 +1056,11 @@ The server sends this message to set the date and time on the terminal.
    "reason": 1  
   }
 ```
-### **17\. Set Terminal Parameter (setdevinfo)**
+### 17\. Set Terminal Parameter (setdevinfo)
 
 The server sends this message to configure various terminal settings. All parameters are optional.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1072,7 +1076,7 @@ The server sends this message to configure various terminal settings. All parame
  "reverifytime": 0 // Re-verification time (0-255 minutes)  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1091,7 +1095,7 @@ The server sends this message to configure various terminal settings. All parame
    "reason": 1  
   }
 ```
-#### **Tips:**
+#### Extra Tips:
 
 1. **Optional Parameters:** Include only the parameters you want to change. Example:  
    {  
@@ -1134,18 +1138,18 @@ The server sends this message to configure various terminal settings. All parame
    - VERIFY_KIND_CARD_ADD_FP_ADD_PWD: 3 (RFID Card and Fingerprint and Password)
    - VERIFY_KIND_CARD_ADD_PWD: 4 (RFID Card and Password)
 
-### **18\. Get Terminal Parameter (getdevinfo)**
+### 18\. Get Terminal Parameter (getdevinfo)
 
 The server sends this message to retrieve the terminal's current configuration.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "getdevinfo"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1173,11 +1177,11 @@ The server sends this message to retrieve the terminal's current configuration.
    "reason": 1  
   }
 ```
-### **19\. Open Door (opendoor)**
+### 19\. Open Door (opendoor)
 
 The server sends this message to open a door connected to the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1185,7 +1189,7 @@ The server sends this message to open a door connected to the terminal.
  "doornum": 1 // Door number (1-4 for access controllers). Omit for regular attendance machines.  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1204,11 +1208,11 @@ The server sends this message to open a door connected to the terminal.
    "reason": 1  
   }
 ```
-### **20\. Set Access Parameters (setdevlock)**
+### 20\. Set Access Parameters (setdevlock)
 
 The server sends this message to configure access control parameters for the terminal. All parameters are optional.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1275,7 +1279,7 @@ The server sends this message to configure access control parameters for the ter
  ]  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1294,7 +1298,7 @@ The server sends this message to configure access control parameters for the ter
    "reason": 1  
   }
 ```
-#### **Tips:**
+#### Extra Tips:
 
 1. **Short Message Format:** For one dayzone and one weekzone:  
   
@@ -1317,18 +1321,18 @@ The server sends this message to configure access control parameters for the ter
      - Tom (group 1\) \+ Bush (group 2\) \+ Hilari (group 9\) _or_
      - Tom (group 1\) \+ Obama (group 1\) \+ Cruz (group 9\) must verify to open.
 
-### **21\. Get Access Parameter (getdevlock)**
+### 21\. Get Access Parameter (getdevlock)
 
 The server sends this message to retrieve the current access control parameters from the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "getdevlock"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1407,11 +1411,11 @@ The server sends this message to retrieve the current access control parameters 
    "reason": 1  
   }
 ```
-### **22\. Get User Access Parameter (getuserlock)**
+### 22\. Get User Access Parameter (getuserlock)
 
 The server sends this message to retrieve the access control parameters for a specific user.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1419,7 +1423,7 @@ The server sends this message to retrieve the access control parameters for a sp
  "enrollid": 1  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1446,11 +1450,11 @@ The server sends this message to retrieve the access control parameters for a sp
    "reason": 1  
   }
 ```
-### **23\. Set User Access Parameter (setuserlock)**
+### 23\. Set User Access Parameter (setuserlock)
 
 The server sends this message to set the access control parameters for specific users.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1477,7 +1481,7 @@ The server sends this message to set the access control parameters for specific 
  ]  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1496,11 +1500,11 @@ The server sends this message to set the access control parameters for specific 
    "reason": 1  
   }
 ```
-### **24\. Delete User Access Parameter (deleteuserlock)**
+### 24\. Delete User Access Parameter (deleteuserlock)
 
 The server sends this message to delete the access control parameters for a specific user.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1508,7 +1512,7 @@ The server sends this message to delete the access control parameters for a spec
  "enrollid": 1  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1527,18 +1531,18 @@ The server sends this message to delete the access control parameters for a spec
    "reason": 1  
   }
 ```
-### **25\. Clean All User Access Parameters (cleanuserlock)**
+### 25\. Clean All User Access Parameters (cleanuserlock)
 
 The server sends this message to delete all user access control parameters.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd": "cleanuserlock"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1557,18 +1561,18 @@ The server sends this message to delete all user access control parameters.
    "reason": 1  
   }
 ```
-### **26\. Get Time (gettime)**
+### 26\. Get Time (gettime)
 
 The server sends this message to get the terminal date and time.
 
-#### **Request**
+#### Request
 
 ```json
 {  
  "cmd":"gettime"  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1578,12 +1582,12 @@ The server sends this message to get the terminal date and time.
    "time":"2022-11-09 19:31:49"  
   }
 ```
-### **27\. QR Code Sending (sendqrcode)**
+### 27\. QR Code Sending (sendqrcode)
 
 The terminal sends this message to send a QR code.
 This will not be implemented until some time in the future.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1592,11 +1596,11 @@ This will not be implemented until some time in the future.
  "record": "123456"  
 }
 ```
-### **28\. QR Code Server Reply**
+### 28\. QR Code Server Reply
 
 The server sends this message as a response to a QR code sent by a terminal.
 
-#### **Response**
+#### Response
 
 ```json
 {  
@@ -1608,11 +1612,11 @@ The server sends this message as a response to a QR code sent by a terminal.
  "message": "ok"  
 }
 ```
-### **29\. Get Questionnaire Parameter (getquestionnaire)**
+### 29\. Get Questionnaire Parameter (getquestionnaire)
 
 The server sends this message to get the questionnaire parameters from the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1620,7 +1624,7 @@ The server sends this message to get the questionnaire parameters from the termi
  "stn": true  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1650,11 +1654,11 @@ The server sends this message to get the questionnaire parameters from the termi
    ]  
   }
 ```
-### **30\. Set Questionnaire Parameter (setquestionnaire)**
+### 30\. Set Questionnaire Parameter (setquestionnaire)
 
 The server sends this message to set the questionnaire parameters for the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1680,7 +1684,7 @@ The server sends this message to set the questionnaire parameters for the termin
  ]  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1700,11 +1704,11 @@ The server sends this message to set the questionnaire parameters for the termin
    "reason": 1  
   }
 ```
-### **31\. Get Holiday Parameter (getholiday)**
+### 31\. Get Holiday Parameter (getholiday)
 
 The server sends this message to retrieve the holiday parameters from the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1712,7 +1716,7 @@ The server sends this message to retrieve the holiday parameters from the termin
  "stn": true  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
@@ -1746,11 +1750,11 @@ The server sends this message to retrieve the holiday parameters from the termin
    ]  
   }
 ```
-### **32\. Set Holiday Parameter (setholiday)**
+### 32\. Set Holiday Parameter (setholiday)
 
 The server sends this message to set the holiday parameters for the terminal.
 
-#### **Request**
+#### Request
 
 ```json
 {  
@@ -1780,7 +1784,7 @@ The server sends this message to set the holiday parameters for the terminal.
  ]  
 }
 ```
-#### **Response**
+#### Response
 
 - **Success:**  
 
