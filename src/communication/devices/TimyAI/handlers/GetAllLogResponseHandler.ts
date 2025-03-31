@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { instanceToPlain } from 'class-transformer';
 import { ITimyAIMessageHandler } from './ITimyAIMessageHandler';
-import { TimyAIGetAllLogResponse, TimyAIGetAllLogRequest } from '../types';
+import { TimyAIGetAllLogResponse, TimyAIContinueAllLogRequest } from '../types';
 
 export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
     
@@ -41,11 +41,9 @@ export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
             console.log(`Requesting next batch of logs from ${message.serialNumber}...`);
             
             // Construct the follow-up request  
-            const nextRequest = new TimyAIGetAllLogRequest();
-            nextRequest.startTransmission = false; // Important: set stn to false for subsequent requests
-            
+            const continueRequest = new TimyAIContinueAllLogRequest();
             // Convert to plain object matching device format
-            const plainRequest = instanceToPlain(nextRequest);
+            const plainRequest = instanceToPlain(continueRequest);
 
             try {
                 ws.send(JSON.stringify(plainRequest));
@@ -54,7 +52,6 @@ export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
             }
         } else {
             console.log(`Finished receiving all logs (${message.count}) from ${message.serialNumber}.`);
-            // Emit an event indicating completion (optional)
             protocolEmitter.emit('allLogsReceived', { terminalSN: message.serialNumber, total: message.count });
         }
     }
