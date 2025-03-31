@@ -37,7 +37,7 @@ export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
              */
         }
         
-        // Emit an event with the batch (optional)
+        // Maybe used batches in future to reduce API Requests.
         protocolEmitter.emit('logBatchReceived', { 
             terminalSN: message.serialNumber, 
             records: message.records, 
@@ -46,15 +46,12 @@ export class GetAllLogResponseHandler implements ITimyAIMessageHandler {
             total: message.count
          });
 
-        // Check if more logs are expected (indexes are 0-based)
         const moreLogsExist = message.to < message.count - 1;
 
         if (moreLogsExist) {
             console.log(`Requesting next batch of logs from ${message.serialNumber}...`);
             
-            // Construct the follow-up request  
             const continueRequest = new TimyAIContinueAllLogRequest();
-            // Convert to plain object matching device format
             const plainRequest = instanceToPlain(continueRequest);
 
             try {
