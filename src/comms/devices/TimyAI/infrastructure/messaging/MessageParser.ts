@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { IMessageParser } from '../../application/interfaces/IMessageParser';
-import { TimyAIRegisterRequest, TimyAISendLogRequest, TimyAISendUserRequest, TimyAIGetAllLogRequest, TimyAIContinueAllLogRequest, TimyAISetUserInfoRequest, TimyAIGetUserListRequest } from '../../types/commands';
+import { TimyAIRegisterRequest, TimyAISendLogRequest, TimyAISendUserRequest } from '../../types/commands';
 import { TimyAIGetAllLogResponse } from '../../types/responses';
 import { PossibleTimyAIMessage, TimyAIMessageClass } from '../../types/shared';
 
@@ -54,7 +54,7 @@ export class MessageParser implements IMessageParser {
     identifier: string,
     isRequest: boolean
   ): PossibleTimyAIMessage {
-    const MessageClass = this._getMessageClass(identifier, isRequest, plainObject);
+    const MessageClass = this._getMessageClass(identifier, isRequest);
     
     if (!MessageClass) {
       console.warn(`No class mapping for ${isRequest ? 'command' : 'response'}: ${identifier}. Using plain object.`);
@@ -77,7 +77,6 @@ export class MessageParser implements IMessageParser {
   private _getMessageClass(
     identifier: string, 
     isRequest: boolean,
-    messageObject?: Record<string, unknown>
   ): TimyAIMessageClass | null {
     if (isRequest) {
       // Determine if it's a terminal-to-server command or a server-to-terminal command
@@ -86,19 +85,6 @@ export class MessageParser implements IMessageParser {
         case 'reg': return TimyAIRegisterRequest;
         case 'sendlog': return TimyAISendLogRequest;
         case 'senduser': return TimyAISendUserRequest;
-        
-        // Server-to-terminal commands
-        case 'getalllog': 
-          // If there are fromDate and toDate properties, it's a GetAllLogRequest
-          // Otherwise, it's a ContinueAllLogRequest
-          if (messageObject && 
-              (messageObject.from !== undefined || messageObject.to !== undefined)) {
-            return TimyAIGetAllLogRequest;
-          }
-          return TimyAIContinueAllLogRequest;
-        case 'setuserinfo': return TimyAISetUserInfoRequest;
-        case 'getuserlist': return TimyAIGetUserListRequest;
-        
         default: return null;
       }
     } else { // It's a response

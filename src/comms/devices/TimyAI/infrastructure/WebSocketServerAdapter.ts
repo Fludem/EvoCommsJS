@@ -6,7 +6,7 @@ import { IMessageRouter } from '../application/interfaces/IMessageRouter';
 import { ITerminalConnectionManager } from '../application/interfaces/ITerminalConnectionManager';
 
 export class WebSocketServerAdapter extends EventEmitter {
-  private wss: WebSocketServer;
+  private wss?: WebSocketServer;
   private readonly logger = createLogger('WebSocketServer');
   
   constructor(
@@ -18,12 +18,12 @@ export class WebSocketServerAdapter extends EventEmitter {
     super();
     
     this.logger.debug({ port }, 'Initializing WebSocket server');
-    this.wss = new WebSocketServer({ port });
-    this._setupServer();
   }
 
   private _setupServer(): void {
     // Server events
+    this.wss = new WebSocketServer({ port: this.port });
+    
     this.wss.on('listening', () => {
       this.logger.info({ port: this.port }, 'WebSocket server listening');
       this.emit('listening', this.port);
