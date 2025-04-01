@@ -1,7 +1,18 @@
 import prisma from '../utils/prisma';
 import logger from '../utils/logger';
 
-// Define the types we need explicitly
+
+/**
+ * Terminal
+ * @param id - The ID of the terminal
+ * @param serial_number - The serial number of the terminal
+ * @param firmware - The firmware version of the terminal
+ * @param terminal_type - The type of terminal
+ * @param customer_id - The ID of the customer the terminal belongs to
+ * @param last_seen - The last time the terminal was seen
+ * @param created_at - The date and time the terminal was created
+ * @param updated_at - The date and time the terminal was last updated
+ */
 export interface Terminal {
   id: bigint;
   serial_number: string;
@@ -13,6 +24,12 @@ export interface Terminal {
   updated_at: Date;
 }
 
+/**
+ * Required fields for creating a terminal
+ * @param serial_number - The serial number of the terminal
+ * @param firmware - The firmware version of the terminal
+ * @param terminal_type - The type of terminal
+ */
 export interface TerminalCreateInput {
   serial_number: string;
   firmware: string;
@@ -21,6 +38,12 @@ export interface TerminalCreateInput {
   last_seen?: Date;
 }
 
+/**
+ * Required fields for updating a terminal
+ * @param serial_number - The serial number of the terminal
+ * @param firmware - The firmware version of the terminal
+ * @param terminal_type - The type of terminal
+ */
 export interface TerminalUpdateInput {
   serial_number?: string;
   firmware?: string;
@@ -29,9 +52,13 @@ export interface TerminalUpdateInput {
   last_seen?: Date;
 }
 
+/**
+ * Terminal repository for interacting with the terminals table
+ */
 export class TerminalRepository {
   /**
    * Find all terminals
+   * @returns All terminals
    */
   static async findAll(): Promise<Terminal[]> {
     try {
@@ -44,6 +71,8 @@ export class TerminalRepository {
 
   /**
    * Find a terminal by ID
+   * @param id - The ID of the terminal to find
+   * @returns The terminal or null if not found
    */
   static async findById(id: number): Promise<Terminal | null> {
     try {
@@ -58,6 +87,8 @@ export class TerminalRepository {
 
   /**
    * Find a terminal by serial number
+   * @param serialNumber - The serial number of the terminal to find
+   * @returns The terminal or null if not found
    */
   static async findBySerialNumber(serialNumber: string): Promise<Terminal | null> {
     try {
@@ -71,7 +102,9 @@ export class TerminalRepository {
   }
 
   /**
-   * Create a new terminal
+   * Store a new terminal in DB
+   * @param data - The data for the terminal to create
+   * @returns The created terminal or null if an error occurs
    */
   static async create(data: TerminalCreateInput): Promise<Terminal | null> {
     try {
@@ -100,7 +133,10 @@ export class TerminalRepository {
   }
 
   /**
-   * Update a terminal
+   * Update a terminal in DB
+   * @param id - The ID of the terminal to update
+   * @param data - The data for the terminal to update
+   * @returns The updated terminal or null if an error occurs
    */
   static async update(id: number, data: TerminalUpdateInput): Promise<Terminal | null> {
     try {
@@ -134,6 +170,8 @@ export class TerminalRepository {
 
   /**
    * Update a terminal's last seen timestamp
+   * @param id - The ID of the terminal to update
+   * @returns The updated terminal or null if an error occurs
    */
   static async updateLastSeen(id: number): Promise<Terminal | null> {
     try {
@@ -148,7 +186,9 @@ export class TerminalRepository {
   }
 
   /**
-   * Delete a terminal
+   * Delete a terminal from DB  
+   * @param id - The ID of the terminal to delete
+   * @returns True if the terminal was deleted, false otherwise
    */
   static async delete(id: number): Promise<boolean> {
     try {
