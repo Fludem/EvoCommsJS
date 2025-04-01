@@ -1,13 +1,14 @@
 import 'reflect-metadata';
 import { Server } from "./server";
+import logger from './utils/logger';
 
 async function main() {
   try {
     const server = new Server();
     await server.start();
-    console.log("EvoComms service started successfully");
+    logger.info("EvoComms service started successfully");
   } catch (error) {
-    console.error("Failed to start EvoComms service:", error);
+    logger.error(`Failed to start EvoComms service: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   }
 }
