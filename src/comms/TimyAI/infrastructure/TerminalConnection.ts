@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
 import { instanceToPlain } from 'class-transformer';
-import { createLogger } from '../../../../utils/logger';
+import { createLogger } from '../../../utils/logger';
 import { ServerToTerminalCommand } from '../types/shared';
 import { ITerminalConnection } from '../application/interfaces/ITerminalConnection';
 

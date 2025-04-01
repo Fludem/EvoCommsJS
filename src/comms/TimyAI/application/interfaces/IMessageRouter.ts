@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { PossibleTimyAIMessage } from "@/comms/devices/TimyAI/types/shared";
+import { PossibleTimyAIMessage } from "@/comms/TimyAI/types/shared";
 
 /**
  * Routes messages to the appropriate handler

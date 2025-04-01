@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { EventEmitter } from 'events';
-import { createLogger } from '../../../../utils/logger';
+import { createLogger } from '../../../utils/logger';
 import { IMessageParser } from '../application/interfaces/IMessageParser';
 import { IMessageRouter } from '../application/interfaces/IMessageRouter';
 import { ITerminalConnectionManager } from '../application/interfaces/ITerminalConnectionManager';

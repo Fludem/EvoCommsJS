@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { ServerToTerminalCommand } from '@/comms/devices/TimyAI/types/shared';
+import { ServerToTerminalCommand } from '@/comms/TimyAI/types/shared';
 
 /**
  * Represents a connection to a TimyAI terminal

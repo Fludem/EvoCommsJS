@@ -1,4 +1,4 @@
-import { PossibleTimyAIMessage } from "@/comms/devices/TimyAI/types/shared";
+import { PossibleTimyAIMessage } from "@/comms/TimyAI/types/shared";
 
 export interface IMessageParser {
   

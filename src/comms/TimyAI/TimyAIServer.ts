@@ -6,7 +6,7 @@ import { MessageParser } from './infrastructure/messaging/MessageParser';
 import { MessageRouter } from './infrastructure/messaging/MessageRouter';
 import { WebSocketServerAdapter } from './infrastructure/WebSocketServerAdapter';
 import { HandlerFactory } from './application/factories/HandlerFactory';
-import { createLogger } from '../../../utils/logger';
+import { createLogger } from '../../utils/logger';
 import { ITerminalConnectionManager } from './application/interfaces/ITerminalConnectionManager';
 
 dotenv.config();
