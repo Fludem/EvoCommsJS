@@ -1,7 +1,14 @@
 import prisma from '../utils/prisma';
 import logger from '../utils/logger';
 
-// Define the types we need explicitly
+/**
+ * Clocking
+ * @param id - The ID of the clocking
+ * @param employee_id - The ID of the employee
+ * @param terminal_id - The ID of the terminal
+ * @param time - The time of the clocking
+ * @param sent_to_api - Whether the clocking has been sent to the API
+ */
 export interface Clocking {
   id: bigint;
   employee_id: bigint;
@@ -12,6 +19,12 @@ export interface Clocking {
   updated_at: Date;
 }
 
+/**
+ * Required fields for creating a clocking
+ * @param employee_id - The ID of the employee who clocked in
+ * @param terminal_id - The ID of the terminal that it came from
+ * @param time - The time the employee clocked
+ */
 export interface ClockingCreateInput {
   employee_id: number;
   terminal_id: number;
@@ -19,6 +32,12 @@ export interface ClockingCreateInput {
   sent_to_api?: boolean;
 }
 
+/**
+ * Required fields for updating a clocking
+ * @param employee_id - The ID of the employee who clocked in
+ * @param terminal_id - The ID of the terminal that it came from
+ * @param time - The time the employee clocked
+ */
 export interface ClockingUpdateInput {
   employee_id?: number;
   terminal_id?: number;
@@ -26,9 +45,13 @@ export interface ClockingUpdateInput {
   sent_to_api?: boolean;
 }
 
+/**
+ * Clocking repository for interacting with the clockings table
+ */ 
 export class ClockingRepository {
   /**
    * Find all clockings
+   * @returns All clockings
    */
   static async findAll(): Promise<Clocking[]> {
     try {
@@ -40,7 +63,9 @@ export class ClockingRepository {
   }
 
   /**
-   * Find a clocking by ID
+   * Find a clocking by ID  
+   * @param id - The ID of the clocking to find
+   * @returns The clocking or null if not found
    */
   static async findById(id: number): Promise<Clocking | null> {
     try {
@@ -54,7 +79,9 @@ export class ClockingRepository {
   }
 
   /**
-   * Find clockings by employee ID
+   * Find clockings by employee ID  
+   * @param employeeId - The ID of the employee to find clockings for
+   * @returns The clockings or an empty array if not found
    */
   static async findByEmployeeId(employeeId: number): Promise<Clocking[]> {
     try {
@@ -69,7 +96,9 @@ export class ClockingRepository {
   }
 
   /**
-   * Create a new clocking
+   * Store a new clocking in DB
+   * @param data - The data for the clocking to create
+   * @returns The created clocking or null if an error occurs
    */
   static async create(data: ClockingCreateInput): Promise<Clocking | null> {
     try {
@@ -88,11 +117,13 @@ export class ClockingRepository {
   }
 
   /**
-   * Update a clocking
+   * Update a clocking in DB
+   * @param id - The ID of the clocking to update
+   * @param data - The data for the clocking to update
+   * @returns The updated clocking or null if an error occurs
    */
   static async update(id: number, data: ClockingUpdateInput): Promise<Clocking | null> {
     try {
-      // Convert number IDs to BigInt if present
       const updateData: Record<string, unknown> = { ...data };
       if (data.employee_id !== undefined) {
         updateData.employee_id = BigInt(data.employee_id);
@@ -113,6 +144,8 @@ export class ClockingRepository {
 
   /**
    * Mark a clocking as sent to API
+   * @param id - The ID of the clocking to mark as sent
+   * @returns The updated clocking or null if an error occurs
    */
   static async markAsSent(id: number): Promise<Clocking | null> {
     try {
@@ -127,7 +160,9 @@ export class ClockingRepository {
   }
 
   /**
-   * Delete a clocking
+   * Delete a clocking from DB
+   * @param id - The ID of the clocking to delete
+   * @returns True if the clocking was deleted, false otherwise
    */
   static async delete(id: number): Promise<boolean> {
     try {
