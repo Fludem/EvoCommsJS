@@ -1,7 +1,14 @@
 import prisma from '../utils/prisma';
 import logger from '../utils/logger';
 
-// Define the types we need explicitly
+/**
+ * Customer
+ * @param id - The ID of the customer
+ * @param company_name - The customers company name
+ * @param domain - The customers domain on evotime typically something like "companyname.evotime.com"
+ * @param created_at - The date and time the customer was created
+ * @param updated_at - The date and time the customer was last updated
+ */
 export interface Customer {
   id: bigint;
   company_name: string | null;
@@ -10,19 +17,33 @@ export interface Customer {
   updated_at: Date;
 }
 
+/**
+ * Required fields for creating a customer in DB
+ * @param company_name - The name of the company
+ * @param domain - The domain of the company
+ */
 export interface CustomerCreateInput {
   company_name?: string | null;
   domain?: string | null;
 }
 
+/**
+ * Required fields for updating a customer in DB
+ * @param company_name - The name of the company
+ * @param domain - The domain of the company
+ */
 export interface CustomerUpdateInput {
   company_name?: string | null;
   domain?: string | null;
 }
 
+/**
+ * Customer repository for interacting with the customers table
+ */ 
 export class CustomerRepository {
   /**
    * Find all customers
+   * @returns All customers
    */
   static async findAll(): Promise<Customer[]> {
     try {
@@ -35,6 +56,8 @@ export class CustomerRepository {
 
   /**
    * Find a customer by ID
+   * @param id - The ID of the customer to find
+   * @returns The customer or null if not found
    */
   static async findById(id: number): Promise<Customer | null> {
     try {
@@ -49,6 +72,8 @@ export class CustomerRepository {
 
   /**
    * Find a customer by domain
+   * @param domain - The domain of the customer to find
+   * @returns The customer or null if not found
    */
   static async findByDomain(domain: string): Promise<Customer | null> {
     try {
@@ -62,7 +87,9 @@ export class CustomerRepository {
   }
 
   /**
-   * Create a new customer
+   * Create a new customer in DB
+   * @param data - The data for the customer to create
+   * @returns The created customer or null if an error occurs
    */
   static async create(data: CustomerCreateInput): Promise<Customer | null> {
     try {
@@ -74,7 +101,10 @@ export class CustomerRepository {
   }
 
   /**
-   * Update a customer
+   * Update a customer in DB
+   * @param id - The ID of the customer to update
+   * @param data - The data for the customer to update
+   * @returns The updated customer or null if an error occurs
    */
   static async update(id: number, data: CustomerUpdateInput): Promise<Customer | null> {
     try {
@@ -89,7 +119,9 @@ export class CustomerRepository {
   }
 
   /**
-   * Delete a customer
+   * Delete a customer from DB  
+   * @param id - The ID of the customer to delete
+   * @returns True if the customer was deleted, false otherwise
    */
   static async delete(id: number): Promise<boolean> {
     try {
