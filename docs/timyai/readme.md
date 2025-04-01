@@ -1,4 +1,4 @@
-# **TimyAI Device Communication Protocol**
+# TimyAI Device Communication Protocol
 
 ## Introduction
 
@@ -666,7 +666,7 @@ Server send message to enable user.
    "reason":1  
   }
 ```
-### **8\. Disable User (disableuser)**
+### 8\. Disable User (disableuser)
 
 Server sends message to disable user.
 
