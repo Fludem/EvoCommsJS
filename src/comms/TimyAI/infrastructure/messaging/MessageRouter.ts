@@ -1,14 +1,19 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
-import { IMessageRouter } from '@/comms/TimyAI/application/interfaces/IMessageRouter';
-import { ITimyAIMessageHandler } from '@/comms/TimyAI/application/interfaces/ITimyAIMessageHandler';
-import { PossibleTimyAIMessage } from '@/comms/TimyAI/types/shared';
-import { ITerminalConnectionManager } from '@/comms/TimyAI/application/interfaces/ITerminalConnectionManager';
+import { injectable, inject } from 'tsyringe';
+import { IMessageRouter } from '../../application/interfaces/IMessageRouter';
+import { ITimyAIMessageHandler } from '../../application/interfaces/ITimyAIMessageHandler';
+import { PossibleTimyAIMessage } from '../../types/shared';
+import { ITerminalConnectionManager } from '../../application/interfaces/ITerminalConnectionManager';
+import { HandlerService } from '../../application/services/HandlerService';
+import { createLogger } from '../../../../utils/logger';
 
 /**
  * Routes messages to the appropriate handler
  */
+@injectable()
 export class MessageRouter implements IMessageRouter {
+  private readonly logger = createLogger('MessageRouter');
   private requestHandlers: Map<string, ITimyAIMessageHandler>;
   private responseHandlers: Map<string, ITimyAIMessageHandler>;
   
@@ -16,17 +21,16 @@ export class MessageRouter implements IMessageRouter {
    * Constructor
    * @param eventEmitter - The event emitter for the protocol
    * @param connectionManager - The terminal connection manager
-   * @param requestHandlers - The request handlers
-   * @param responseHandlers - The response handlers
+   * @param handlerService - The handler service
    */
   constructor(
     private readonly eventEmitter: EventEmitter,
-    private readonly connectionManager: ITerminalConnectionManager,
-    requestHandlers: Map<string, ITimyAIMessageHandler>,
-    responseHandlers: Map<string, ITimyAIMessageHandler>
+    @inject('ITerminalConnectionManager') private readonly connectionManager: ITerminalConnectionManager,
+    private readonly handlerService: HandlerService
   ) {
-    this.requestHandlers = requestHandlers;
-    this.responseHandlers = responseHandlers;
+    this.requestHandlers = this.handlerService.getRequestHandlers();
+    this.responseHandlers = this.handlerService.getResponseHandlers();
+    this.logger.debug('MessageRouter initialized');
   }
 
   /**
@@ -46,7 +50,7 @@ export class MessageRouter implements IMessageRouter {
     const handler = handlerMap.get(identifier);
 
     if (!handler) {
-      console.warn(`No handler found for ${isRequest ? 'command' : 'response'}: ${identifier}`);
+      this.logger.warn({ identifier, isRequest }, `No handler found for ${isRequest ? 'command' : 'response'}`);
       return;
     }
 
@@ -62,7 +66,11 @@ export class MessageRouter implements IMessageRouter {
       
       handler.handle(ws, message, this.eventEmitter, terminals);
     } catch (error) {
-      console.error(`Error executing ${isRequest ? 'request' : 'response'} handler for ${identifier}:`, error);
+      this.logger.error({ 
+        err: error, 
+        identifier, 
+        isRequest 
+      }, `Error executing ${isRequest ? 'request' : 'response'} handler`);
     }
   }
 } 

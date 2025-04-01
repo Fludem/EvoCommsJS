@@ -1,13 +1,22 @@
 import { plainToInstance } from 'class-transformer';
+import { injectable } from 'tsyringe';
 import { IMessageParser } from '../../application/interfaces/IMessageParser';
 import { TimyAIRegisterRequest, TimyAISendLogRequest, TimyAISendUserRequest } from '../../types/commands';
 import { TimyAIGetAllLogResponse } from '../../types/responses';
 import { PossibleTimyAIMessage, TimyAIMessageClass } from '../../types/shared';
+import { createLogger } from '../../../../utils/logger';
 
 /**
  * Parses messages from a terminal into a typed message
  */
+@injectable()
 export class MessageParser implements IMessageParser {
+  private readonly logger = createLogger('MessageParser');
+  
+  constructor() {
+    this.logger.debug('MessageParser initialized');
+  }
+  
   /**
    * Parse a message from a timy terminal into a typed message
    * @param data - The message to parse
@@ -82,7 +91,7 @@ export class MessageParser implements IMessageParser {
     const MessageClass = this._getMessageClass(identifier, isRequest);
     
     if (!MessageClass) {
-      console.warn(`No class mapping for ${isRequest ? 'command' : 'response'}: ${identifier}. Using plain object.`);
+      this.logger.warn({ identifier, isRequest }, `No class mapping. Using plain object.`);
       return plainObject;
     }
     
@@ -91,10 +100,11 @@ export class MessageParser implements IMessageParser {
         excludeExtraneousValues: true,
       });
     } catch (error) {
-      console.error(
-        `Error transforming message for ${isRequest ? 'command' : 'response'} ${identifier}. Using plain object.`,
-        error
-      );
+      this.logger.error({ 
+        err: error, 
+        identifier, 
+        isRequest 
+      }, 'Error transforming message. Using plain object.');
       return plainObject;
     }
   }

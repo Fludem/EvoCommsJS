@@ -1,13 +1,15 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { EventEmitter } from 'events';
+import { injectable, inject } from 'tsyringe';
 import { createLogger } from '../../../utils/logger';
 import { IMessageParser } from '../application/interfaces/IMessageParser';
-import { IMessageRouter } from '../application/interfaces/IMessageRouter';
 import { ITerminalConnectionManager } from '../application/interfaces/ITerminalConnectionManager';
+import { MessageRouter } from './messaging/MessageRouter';
 
 /**
  * WebSocket server adapter
  */
+@injectable()
 export class WebSocketServerAdapter extends EventEmitter {
   private wss?: WebSocketServer;
   private readonly logger = createLogger('WebSocketServer');
@@ -20,10 +22,10 @@ export class WebSocketServerAdapter extends EventEmitter {
    * @param connectionManager - The terminal connection manager
    */
   constructor(
-    private readonly port: number,
-    private readonly messageParser: IMessageParser,
-    private readonly messageRouter: IMessageRouter,
-    private readonly connectionManager: ITerminalConnectionManager
+    @inject('port') private readonly port: number,
+    @inject('IMessageParser') private readonly messageParser: IMessageParser,
+    private readonly messageRouter: MessageRouter,
+    @inject('ITerminalConnectionManager') private readonly connectionManager: ITerminalConnectionManager
   ) {
     super();
     
@@ -137,7 +139,7 @@ export class WebSocketServerAdapter extends EventEmitter {
    * Start the WebSocket server (in this case it's already started on construction)
    */
   start(): void {
-    this.logger.debug('WebSocket server already started on instantiation');
+    this.logger.debug('Starting WebSocket server');
     this._setupServer();
   }
 

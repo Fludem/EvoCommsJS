@@ -1,17 +1,22 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
-import { ITerminalConnectionManager } from '@/comms/TimyAI/application/interfaces/ITerminalConnectionManager';
-import { ITerminalConnection } from '@/comms/TimyAI/application/interfaces/ITerminalConnection';
+import { injectable } from 'tsyringe';
+import { ITerminalConnectionManager } from '../application/interfaces/ITerminalConnectionManager';
+import { ITerminalConnection } from '../application/interfaces/ITerminalConnection';
 import { TerminalConnection } from './TerminalConnection';
+import { createLogger } from '../../../utils/logger';
 
 /**
  * Manages terminal connections
  */
+@injectable()
 export class TerminalConnectionManager extends EventEmitter implements ITerminalConnectionManager {
   private connections: Map<string, ITerminalConnection> = new Map();
+  private readonly logger = createLogger('TerminalConnectionManager');
 
   constructor() {
     super();
+    this.logger.debug('TerminalConnectionManager initialized');
   }
 
   /**
@@ -23,7 +28,7 @@ export class TerminalConnectionManager extends EventEmitter implements ITerminal
     const connection = new TerminalConnection(serialNumber, ws);
     this.connections.set(serialNumber, connection);
     this.emit('terminalConnected', serialNumber);
-    console.log(`Terminal ${serialNumber} registered`);
+    this.logger.info({ serialNumber }, 'Terminal registered');
   }
 
   /**
@@ -56,7 +61,7 @@ export class TerminalConnectionManager extends EventEmitter implements ITerminal
         this.connections.delete(serialNumber);
         disconnectedSN = serialNumber;
         this.emit('terminalDisconnected', serialNumber);
-        console.log(`Terminal ${serialNumber} disconnected.`);
+        this.logger.info({ serialNumber }, 'Terminal disconnected');
         break;
       }
     }

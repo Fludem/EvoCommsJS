@@ -1,60 +1,35 @@
 import { EventEmitter } from 'events';
 import dotenv from 'dotenv';
+import { injectable, inject, container } from 'tsyringe';
 import { ServerToTerminalCommand } from './types/shared';
-import { TerminalConnectionManager } from './infrastructure/TerminalConnectionManager';
-import { MessageParser } from './infrastructure/messaging/MessageParser';
-import { MessageRouter } from './infrastructure/messaging/MessageRouter';
 import { WebSocketServerAdapter } from './infrastructure/WebSocketServerAdapter';
-import { HandlerFactory } from './application/factories/HandlerFactory';
-import { createLogger } from '../../utils/logger';
 import { ITerminalConnectionManager } from './application/interfaces/ITerminalConnectionManager';
+import { createLogger } from '../../utils/logger';
 
 dotenv.config();
 
 /**
  * TimyAI Server - Main entry point for handling TimyAI terminals
  * 
- * This class should be facade pattern for simplicity
- * as it's quite complex and has many responsibilities
+ * This class provides a facade for the TimyAI terminal management system
  */
+@injectable()
 export class TimyAIServer extends EventEmitter {
   /**
    * Read port from environment variable with fallback to 7788
    */
   private readonly PORT = parseInt(process.env.TIMYAI_PORT || '7788', 10);
-  private readonly connectionManager: ITerminalConnectionManager;
-  private readonly wsServer: WebSocketServerAdapter;
   private readonly logger = createLogger('TimyAIServer');
+  private readonly wsServer: WebSocketServerAdapter;
   
-  constructor() {
+  constructor(
+    @inject('ITerminalConnectionManager') private readonly connectionManager: ITerminalConnectionManager
+  ) {
     super();
-    
-    this.connectionManager = new TerminalConnectionManager();
     
     this._forwardEvents(this.connectionManager as unknown as EventEmitter);
     
-    /**
-     * @todo
-     * Prob switch to DI Framework and services
-     */
-    const requestHandlers = HandlerFactory.createRequestHandlers();
-    const responseHandlers = HandlerFactory.createResponseHandlers();
-    
-    const messageParser = new MessageParser();
-    
-    const messageRouter = new MessageRouter(
-      this,
-      this.connectionManager,
-      requestHandlers,
-      responseHandlers
-    );
-    
-    this.wsServer = new WebSocketServerAdapter(
-      this.PORT,
-      messageParser,
-      messageRouter,
-      this.connectionManager
-    );
+    this.wsServer = container.resolve(WebSocketServerAdapter);
     
     this._forwardEvents(this.wsServer);
 

@@ -2,6 +2,7 @@ import { TimyAIServer } from './comms/TimyAI/TimyAIServer';
 import { TimyTerminal } from './comms/TimyAI/types/shared';
 import { testConnection as testDbConnection } from './utils/prisma';
 import logger from './utils/logger';
+import container from './di/container';
 
 // Define types for events
 interface ClockingData {
@@ -26,7 +27,8 @@ export class Server {
   private timyServer: TimyAIServer;
 
   constructor() {
-    this.timyServer = new TimyAIServer();
+    // Resolve TimyAIServer from the DI container
+    this.timyServer = container.resolve(TimyAIServer);
     this.setupEventHandlers();
   }
 

@@ -1,15 +1,22 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { instanceToPlain } from 'class-transformer';
+import { injectable } from 'tsyringe';
 import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
 import { TimyAIRegisterRequest } from '../../types/commands';
 import { TimyAIRegisterResponse } from '../../types/responses';
 import { TimyTerminal } from '../../types/shared';
+import { createLogger } from '../../../../utils/logger';
 
 /**
  * Handles the registration of a TimyAI terminal
  */
+@injectable()
 export class RegistrationHandler implements ITimyAIMessageHandler {
+    private readonly logger = createLogger('RegistrationHandler');
+    
+    constructor() {}
+    
     /**
      * Handle a registration message usually sent when device connects
      * @param ws - The WebSocket connection
@@ -25,7 +32,7 @@ export class RegistrationHandler implements ITimyAIMessageHandler {
         };
 
         connectedTerminals.set(terminal.serialNumber, ws);
-        console.log(`Terminal registered: ${terminal.serialNumber} (${message.deviceInfo.modelName ?? 'Unknown Model'})`);
+        this.logger.info(`Terminal registered: ${terminal.serialNumber} (${message.deviceInfo.modelName ?? 'Unknown Model'})`);
 
         const responseInstance = new TimyAIRegisterResponse();
         responseInstance.commandSuccessful = true;

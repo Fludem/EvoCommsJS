@@ -1,7 +1,6 @@
 import prisma from '../utils/prisma';
 import logger from '../utils/logger';
 
-
 /**
  * Terminal
  * @param id - The ID of the terminal
