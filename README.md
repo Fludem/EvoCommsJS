@@ -58,7 +58,6 @@ npm start
 EvoCommsJS/
 ├── src/                         # Source files
 │   ├── comms/                   # Communication modules
-│   │   └── devices/             # Device-specific implementations
 │   │       └── TimyAI/          # TimyAI device implementation
 │   │           ├── application/ # Application layer (use cases)
 │   │           ├── core/        # Core business logic interfaces
