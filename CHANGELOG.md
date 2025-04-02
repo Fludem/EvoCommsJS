@@ -2,6 +2,15 @@
 
 ## 0.0.1 (Pre-Alpha)
 
+### Architecture & Dependency Injection
+- Implemented dependency injection using tsyringe
+- Created DI container with proper service registration
+- Refactored components to use @injectable() decorators
+- Added proper token-based injection for interfaces
+- Fixed WebSocketServerAdapter port injection
+- Created HandlerService to replace factory pattern
+- Improved testability and reduced coupling
+
 ### Database & ORM
 - Implemented Prisma ORM with PostgreSQL
 - Built and designed PostgreSQL database schema using Supabase
