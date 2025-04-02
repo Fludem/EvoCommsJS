@@ -7,6 +7,7 @@ import { TimyAIRegisterRequest } from '../../types/commands';
 import { TimyAIRegisterResponse } from '../../types/responses';
 import { TimyTerminal } from '../../types/shared';
 import { createLogger } from '../../../../utils/logger';
+import { TerminalRepository } from '../../../../repositories/terminal.repository';
 
 /**
  * Handles the registration of a TimyAI terminal
@@ -23,13 +24,23 @@ export class RegistrationHandler implements ITimyAIMessageHandler {
      * @param message - The registration message
      * @param protocolEmitter - The event emitter for the protocol
      */
-    handle(ws: WebSocket, message: TimyAIRegisterRequest, protocolEmitter: EventEmitter, connectedTerminals: Map<string, WebSocket>): void {
-        
+    async handle(ws: WebSocket, message: TimyAIRegisterRequest, protocolEmitter: EventEmitter, connectedTerminals: Map<string, WebSocket>): Promise<void> {
         const terminal: TimyTerminal = {
             serialNumber: message.serialNumber,
             cpuSerialNumber: message.cpuSerialNumber,
             deviceInfo: message.deviceInfo
         };
+
+        // Update or create terminal in database
+        const dbTerminal = await TerminalRepository.upsert({
+            serial_number: terminal.serialNumber,
+            firmware: terminal.deviceInfo.firmware ?? 'unknown',
+            terminal_type: 'TIMYAI'
+        });
+
+        if (!dbTerminal) {
+            this.logger.error(`Failed to upsert terminal in database: ${terminal.serialNumber}`);
+        }
 
         connectedTerminals.set(terminal.serialNumber, ws);
         this.logger.info(`Terminal registered: ${terminal.serialNumber} (${message.deviceInfo.modelName ?? 'Unknown Model'})`);
