@@ -7,7 +7,6 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-// Create a singleton Prisma client instance
 let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === 'production') {
@@ -22,11 +21,26 @@ if (process.env.NODE_ENV === 'production') {
   prisma = global.prisma;
 }
 
-// Test database connection
+const extendedPrisma = prisma.$extends({
+  name: 'queryLogger',
+  query: {
+    async $allOperations({ operation, model, args, query }) {
+      const before = Date.now();
+      const result = await query(args);
+      const after = Date.now();
+      logger.debug(`Query ${model}.${operation} took ${after - before}ms`);
+      return result;
+    },
+  },
+});
+
+/**
+ * Test the database connection
+ * @returns True if the connection is successful, false otherwise
+ */
 export const testConnection = async (): Promise<boolean> => {
   try {
-    // Simple query to test connection
-    const result = await prisma.$queryRaw`SELECT NOW()`;
+    const result = await extendedPrisma.$queryRaw`SELECT NOW()`;
     logger.info(`Connected to PostgreSQL database: ${JSON.stringify(result)}`);
     return true;
   } catch (err) {
@@ -35,18 +49,4 @@ export const testConnection = async (): Promise<boolean> => {
   }
 };
 
-// Add middleware to log queries (optional)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-prisma.$use(async (params: any, next: any) => {
-  const before = Date.now();
-  const result = await next(params);
-  const after = Date.now();
-  if (params.model && params.action) {
-    logger.debug(`Query ${params.model}.${params.action} took ${after - before}ms`);
-  } else {
-    logger.debug(`Query took ${after - before}ms`);
-  }
-  return result;
-});
-
-export default prisma; 
+export default extendedPrisma; 
