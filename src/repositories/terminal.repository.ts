@@ -200,4 +200,35 @@ export class TerminalRepository {
       return false;
     }
   }
+
+  /**
+   * Upsert a terminal - create if it doesn't exist, update last_seen if it does
+   * @param data - The data for the terminal to upsert
+   * @returns The upserted terminal or null if an error occurs
+   */
+  static async upsert(data: TerminalCreateInput): Promise<Terminal | null> {
+    try {
+      // Convert customer_id to BigInt if present
+      const upsertData = {
+        serial_number: data.serial_number,
+        firmware: data.firmware,
+        terminal_type: data.terminal_type,
+        last_seen: new Date()
+      };
+      
+      // Only add customer_id if it's defined and not null
+      if (data.customer_id !== undefined && data.customer_id !== null) {
+        Object.assign(upsertData, { customer_id: BigInt(data.customer_id) });
+      }
+      
+      return await prisma.terminals.upsert({
+        where: { serial_number: data.serial_number },
+        create: upsertData,
+        update: { last_seen: new Date() }
+      });
+    } catch (error) {
+      logger.error(`Error upserting terminal: ${error instanceof Error ? error.message : String(error)}`);
+      return null;
+    }
+  }
 } 
