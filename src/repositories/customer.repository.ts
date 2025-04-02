@@ -4,42 +4,48 @@ import logger from '../utils/logger';
 /**
  * Customer
  * @param id - The ID of the customer
- * @param company_name - The customers company name
- * @param domain - The customers domain on evotime typically something like "companyname.evotime.com"
+ * @param company_name - The name of the company
+ * @param domain - The domain of the company
+ * @param evotime_tenant_id - The ID of the tenant in EvoTime
  * @param created_at - The date and time the customer was created
  * @param updated_at - The date and time the customer was last updated
  */
 export interface Customer {
   id: bigint;
-  company_name: string | null;
-  domain: string | null;
+  company_name: string;
+  domain: string;
+  evotime_tenant_id: string;
   created_at: Date;
   updated_at: Date;
 }
 
 /**
- * Required fields for creating a customer in DB
+ * Required fields for creating a customer
  * @param company_name - The name of the company
  * @param domain - The domain of the company
+ * @param evotime_tenant_id - The ID of the tenant in EvoTime
  */
 export interface CustomerCreateInput {
-  company_name?: string | null;
-  domain?: string | null;
+  company_name: string;
+  domain: string;
+  evotime_tenant_id: string;
 }
 
 /**
- * Required fields for updating a customer in DB
+ * Required fields for updating a customer
  * @param company_name - The name of the company
  * @param domain - The domain of the company
+ * @param evotime_tenant_id - The ID of the tenant in EvoTime
  */
 export interface CustomerUpdateInput {
-  company_name?: string | null;
-  domain?: string | null;
+  company_name?: string;
+  domain?: string;
+  evotime_tenant_id?: string;
 }
 
 /**
  * Customer repository for interacting with the customers table
- */ 
+ */
 export class CustomerRepository {
   /**
    * Find all customers
@@ -77,7 +83,7 @@ export class CustomerRepository {
    */
   static async findByDomain(domain: string): Promise<Customer | null> {
     try {
-      return await prisma.customers.findFirst({
+      return await prisma.customers.findUnique({
         where: { domain },
       });
     } catch (error) {
@@ -87,13 +93,31 @@ export class CustomerRepository {
   }
 
   /**
-   * Create a new customer in DB
+   * Find a customer by EvoTime tenant ID
+   * @param tenantId - The EvoTime tenant ID of the customer to find
+   * @returns The customer or null if not found
+   */
+  static async findByEvoTimeTenantId(tenantId: string): Promise<Customer | null> {
+    try {
+      return await prisma.customers.findUnique({
+        where: { evotime_tenant_id: tenantId },
+      });
+    } catch (error) {
+      logger.error(`Error finding customer by EvoTime tenant ID: ${error instanceof Error ? error.message : String(error)}`);
+      return null;
+    }
+  }
+
+  /**
+   * Store a new customer in DB
    * @param data - The data for the customer to create
    * @returns The created customer or null if an error occurs
    */
   static async create(data: CustomerCreateInput): Promise<Customer | null> {
     try {
-      return await prisma.customers.create({ data });
+      return await prisma.customers.create({
+        data,
+      });
     } catch (error) {
       logger.error(`Error creating customer: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -119,7 +143,28 @@ export class CustomerRepository {
   }
 
   /**
-   * Delete a customer from DB  
+   * Upsert a customer - create if it doesn't exist, update if it does
+   * @param data - The data for the customer to upsert
+   * @returns The upserted customer or null if an error occurs
+   */
+  static async upsert(data: CustomerCreateInput): Promise<Customer | null> {
+    try {
+      return await prisma.customers.upsert({
+        where: { evotime_tenant_id: data.evotime_tenant_id },
+        create: data,
+        update: {
+          company_name: data.company_name,
+          domain: data.domain
+        }
+      });
+    } catch (error) {
+      logger.error(`Error upserting customer: ${error instanceof Error ? error.message : String(error)}`);
+      return null;
+    }
+  }
+
+  /**
+   * Delete a customer from DB
    * @param id - The ID of the customer to delete
    * @returns True if the customer was deleted, false otherwise
    */

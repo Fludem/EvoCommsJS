@@ -13,6 +13,7 @@ import { UserDataHandler } from '../comms/TimyAI/application/handlers/UserDataHa
 import { GetAllLogResponseHandler } from '../comms/TimyAI/application/handlers/GetAllLogResponseHandler';
 import { HandlerService } from '../comms/TimyAI/application/services/HandlerService';
 import { TimyAIServer } from '../comms/TimyAI/TimyAIServer';
+import { TerminalResolutionService } from '../services/terminal-resolution.service';
 
 /**
  * Register all services with the DI container
@@ -47,7 +48,7 @@ export function registerServices(): void {
     useClass: GetAllLogResponseHandler
   });
   
-  container.register(HandlerService, {
+  container.register('HandlerService', {
     useClass: HandlerService
   });
   
@@ -57,6 +58,10 @@ export function registerServices(): void {
   
   container.register(WebSocketServerAdapter, {
     useClass: WebSocketServerAdapter
+  });
+  
+  container.register(TerminalResolutionService, {
+    useClass: TerminalResolutionService
   });
   
   container.register(TimyAIServer, {

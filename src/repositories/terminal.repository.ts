@@ -107,24 +107,25 @@ export class TerminalRepository {
    */
   static async create(data: TerminalCreateInput): Promise<Terminal | null> {
     try {
-      // Convert customer_id to BigInt if present
       const createData = {
         serial_number: data.serial_number,
         firmware: data.firmware,
         terminal_type: data.terminal_type,
         last_seen: data.last_seen || new Date()
       };
-      
-      // Only add customer_id if it's defined and not null
-      if (data.customer_id !== undefined && data.customer_id !== null) {
-        const finalData = {
-          ...createData,
-          customer_id: BigInt(data.customer_id)
-        };
-        return await prisma.terminals.create({ data: finalData });
+
+      if (typeof data.customer_id === 'number') {
+        return await prisma.terminals.create({
+          data: {
+            ...createData,
+            customer_id: BigInt(data.customer_id)
+          }
+        });
       }
-      
-      return await prisma.terminals.create({ data: createData });
+
+      return await prisma.terminals.create({
+        data: createData
+      });
     } catch (error) {
       logger.error(`Error creating terminal: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -139,22 +140,14 @@ export class TerminalRepository {
    */
   static async update(id: number, data: TerminalUpdateInput): Promise<Terminal | null> {
     try {
-      // Create a base update data object without customer_id
-      const baseUpdateData = {
-        ...(data.serial_number !== undefined && { serial_number: data.serial_number }),
-        ...(data.firmware !== undefined && { firmware: data.firmware }),
-        ...(data.terminal_type !== undefined && { terminal_type: data.terminal_type }),
-        ...(data.last_seen !== undefined && { last_seen: data.last_seen })
-      };
+      const updateData: Record<string, unknown> = {};
       
-      // Add customer_id handling separately to ensure correct type
-      let updateData;
-      if (data.customer_id === null) {
-        updateData = { ...baseUpdateData, customer_id: null };
-      } else if (data.customer_id !== undefined) {
-        updateData = { ...baseUpdateData, customer_id: BigInt(data.customer_id) };
-      } else {
-        updateData = baseUpdateData;
+      if (data.serial_number !== undefined) updateData.serial_number = data.serial_number;
+      if (data.firmware !== undefined) updateData.firmware = data.firmware;
+      if (data.terminal_type !== undefined) updateData.terminal_type = data.terminal_type;
+      if (data.last_seen !== undefined) updateData.last_seen = data.last_seen;
+      if (data.customer_id !== undefined) {
+        updateData.customer_id = typeof data.customer_id === 'number' ? BigInt(data.customer_id) : null;
       }
       
       return await prisma.terminals.update({
@@ -185,7 +178,7 @@ export class TerminalRepository {
   }
 
   /**
-   * Delete a terminal from DB  
+   * Delete a terminal from DB
    * @param id - The ID of the terminal to delete
    * @returns True if the terminal was deleted, false otherwise
    */
@@ -202,29 +195,40 @@ export class TerminalRepository {
   }
 
   /**
-   * Upsert a terminal - create if it doesn't exist, update last_seen if it does
+   * Upsert a terminal - create if it doesn't exist, update if it does
    * @param data - The data for the terminal to upsert
    * @returns The upserted terminal or null if an error occurs
    */
   static async upsert(data: TerminalCreateInput): Promise<Terminal | null> {
     try {
-      // Convert customer_id to BigInt if present
       const upsertData = {
         serial_number: data.serial_number,
         firmware: data.firmware,
         terminal_type: data.terminal_type,
         last_seen: new Date()
       };
-      
-      // Only add customer_id if it's defined and not null
-      if (data.customer_id !== undefined && data.customer_id !== null) {
-        Object.assign(upsertData, { customer_id: BigInt(data.customer_id) });
+
+      if (typeof data.customer_id === 'number') {
+        return await prisma.terminals.upsert({
+          where: { serial_number: data.serial_number },
+          create: {
+            ...upsertData,
+            customer_id: BigInt(data.customer_id)
+          },
+          update: {
+            last_seen: new Date(),
+            customer_id: BigInt(data.customer_id)
+          }
+        });
       }
-      
+
       return await prisma.terminals.upsert({
         where: { serial_number: data.serial_number },
         create: upsertData,
-        update: { last_seen: new Date() }
+        update: {
+          last_seen: new Date(),
+          customer_id: null
+        }
       });
     } catch (error) {
       logger.error(`Error upserting terminal: ${error instanceof Error ? error.message : String(error)}`);

@@ -1,13 +1,14 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { instanceToPlain } from 'class-transformer';
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
 import { TimyAIRegisterRequest } from '../../types/commands';
 import { TimyAIRegisterResponse } from '../../types/responses';
 import { TimyTerminal } from '../../types/shared';
 import { createLogger } from '../../../../utils/logger';
 import { TerminalRepository } from '../../../../repositories/terminal.repository';
+import { TerminalResolutionService } from '../../../../services/terminal-resolution.service';
 
 /**
  * Handles the registration of a TimyAI terminal
@@ -16,7 +17,9 @@ import { TerminalRepository } from '../../../../repositories/terminal.repository
 export class RegistrationHandler implements ITimyAIMessageHandler {
     private readonly logger = createLogger('RegistrationHandler');
     
-    constructor() {}
+    constructor(
+        @inject(TerminalResolutionService) private terminalResolutionService: TerminalResolutionService
+    ) {}
     
     /**
      * Handle a registration message usually sent when device connects
@@ -31,11 +34,15 @@ export class RegistrationHandler implements ITimyAIMessageHandler {
             deviceInfo: message.deviceInfo
         };
 
+        // Resolve customer information from EvoTime API
+        const customerId = await this.terminalResolutionService.resolveTerminal(terminal.serialNumber);
+
         // Update or create terminal in database
         const dbTerminal = await TerminalRepository.upsert({
             serial_number: terminal.serialNumber,
             firmware: terminal.deviceInfo.firmware ?? 'unknown',
-            terminal_type: 'TIMYAI'
+            terminal_type: 'TIMYAI',
+            customer_id: customerId ? Number(customerId) : null
         });
 
         if (!dbTerminal) {

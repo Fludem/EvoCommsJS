@@ -1,8 +1,5 @@
 import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
-import { RegistrationHandler } from '../handlers/RegistrationHandler';
-import { ClockingDataHandler } from '../handlers/ClockingDataHandler';
-import { UserDataHandler } from '../handlers/UserDataHandler';
-import { GetAllLogResponseHandler } from '../handlers/GetAllLogResponseHandler';
+import container from '../../../../di/container';
 
 /**
  * Factory for creating message handlers
@@ -15,9 +12,9 @@ export class HandlerFactory {
   static createRequestHandlers(): Map<string, ITimyAIMessageHandler> {
     const handlers = new Map<string, ITimyAIMessageHandler>();
     
-    handlers.set('reg', new RegistrationHandler());
-    handlers.set('sendlog', new ClockingDataHandler());
-    handlers.set('senduser', new UserDataHandler());
+    handlers.set('reg', container.resolve('RegistrationHandler'));
+    handlers.set('sendlog', container.resolve('ClockingDataHandler'));
+    handlers.set('senduser', container.resolve('UserDataHandler'));
     
     return handlers;
   }
@@ -29,7 +26,7 @@ export class HandlerFactory {
   static createResponseHandlers(): Map<string, ITimyAIMessageHandler> {
     const handlers = new Map<string, ITimyAIMessageHandler>();
     
-    handlers.set('getalllog', new GetAllLogResponseHandler());
+    handlers.set('getalllog', container.resolve('GetAllLogResponseHandler'));
     return handlers;
   }
 } 
