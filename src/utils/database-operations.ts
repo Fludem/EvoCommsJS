@@ -1,14 +1,14 @@
 import pool from './database';
 import logger from './logger';
 
-// Helper type for query parameters
 type QueryParams = Array<string | number | boolean | null | Date>;
 
-// Schema name
 const SCHEMA = 'evocomms';
 
 /**
- * Helper to convert an object to Record<string, unknown> without TypeScript errors
+ * Convert an object to a Record<string, unknown>
+ * @param obj The object to convert
+ * @returns The converted object
  */
 function toRecord<T>(obj: T): Record<string, unknown> {
   return obj as unknown as Record<string, unknown>;
@@ -85,10 +85,8 @@ export async function update<T = Record<string, unknown>>(
   const keys = Object.keys(data);
   const values = Object.values(data);
   
-  // Create SET part of query: "column1 = $1, column2 = $2"
   const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(', ');
   
-  // Add ID as the last parameter
   values.push(id);
   
   const text = `
