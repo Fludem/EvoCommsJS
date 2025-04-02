@@ -26,9 +26,7 @@ export function registerServices(): void {
     useValue: parseInt(process.env.TIMYAI_PORT || '7788', 10)
   });
   
-  container.register<ITerminalConnectionManager>('ITerminalConnectionManager', {
-    useClass: TerminalConnectionManager
-  });
+  container.registerSingleton<ITerminalConnectionManager>('ITerminalConnectionManager', TerminalConnectionManager);
   
   container.register<IMessageParser>('IMessageParser', {
     useClass: MessageParser
