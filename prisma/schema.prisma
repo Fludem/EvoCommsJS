@@ -53,13 +53,13 @@ model terminals {
   serial_number String        @unique(map: "Terminals_serial_number_key")
   firmware      String
   last_seen     DateTime      @default(now()) @db.Timestamp(6)
-  customer_id   BigInt?
+  customer_id   BigInt
   created_at    DateTime      @default(now()) @db.Timestamptz(6)
   updated_at    DateTime      @default(now()) @db.Timestamp(6)
   terminal_type terminal_type
   clockings     clockings[]
   employees     employees[]
-  customers     customers?    @relation(fields: [customer_id], references: [id], onDelete: Cascade, map: "Terminals_customer_id_fkey")
+  customers     customers     @relation(fields: [customer_id], references: [id], onDelete: Cascade, map: "Terminals_customer_id_fkey")
 }
 
 /// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
