@@ -37,16 +37,24 @@ export class RegistrationHandler implements ITimyAIMessageHandler {
         // Resolve customer information from EvoTime API
         const customerId = await this.terminalResolutionService.resolveTerminal(terminal.serialNumber);
 
+        if (!customerId) {
+            this.logger.error(`Terminal ${terminal.serialNumber} not found in EvoTime API or failed to create customer`);
+            ws.close();
+            return;
+        }
+
         // Update or create terminal in database
         const dbTerminal = await TerminalRepository.upsert({
             serial_number: terminal.serialNumber,
             firmware: terminal.deviceInfo.firmware ?? 'unknown',
             terminal_type: 'TIMYAI',
-            customer_id: customerId ? Number(customerId) : null
+            customer_id: Number(customerId)
         });
 
         if (!dbTerminal) {
             this.logger.error(`Failed to upsert terminal in database: ${terminal.serialNumber}`);
+            ws.close();
+            return;
         }
 
         connectedTerminals.set(terminal.serialNumber, ws);

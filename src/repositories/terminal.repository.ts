@@ -17,7 +17,7 @@ export interface Terminal {
   serial_number: string;
   firmware: string;
   terminal_type: 'TIMYAI' | 'VF200' | 'ANVIZ' | 'CS100' | 'ZKTECO';
-  customer_id: bigint | null;
+  customer_id: bigint;
   last_seen: Date;
   created_at: Date;
   updated_at: Date;
@@ -28,12 +28,13 @@ export interface Terminal {
  * @param serial_number - The serial number of the terminal
  * @param firmware - The firmware version of the terminal
  * @param terminal_type - The type of terminal
+ * @param customer_id - The ID of the customer the terminal belongs to
  */
 export interface TerminalCreateInput {
   serial_number: string;
   firmware: string;
   terminal_type: 'TIMYAI' | 'VF200' | 'ANVIZ' | 'CS100' | 'ZKTECO';
-  customer_id?: number | null;
+  customer_id: number;
   last_seen?: Date;
 }
 
@@ -42,12 +43,13 @@ export interface TerminalCreateInput {
  * @param serial_number - The serial number of the terminal
  * @param firmware - The firmware version of the terminal
  * @param terminal_type - The type of terminal
+ * @param customer_id - The ID of the customer the terminal belongs to
  */
 export interface TerminalUpdateInput {
   serial_number?: string;
   firmware?: string;
   terminal_type?: 'TIMYAI' | 'VF200' | 'ANVIZ' | 'CS100' | 'ZKTECO';
-  customer_id?: number | null;
+  customer_id?: number;
   last_seen?: Date;
 }
 
@@ -107,24 +109,14 @@ export class TerminalRepository {
    */
   static async create(data: TerminalCreateInput): Promise<Terminal | null> {
     try {
-      const createData = {
-        serial_number: data.serial_number,
-        firmware: data.firmware,
-        terminal_type: data.terminal_type,
-        last_seen: data.last_seen || new Date()
-      };
-
-      if (typeof data.customer_id === 'number') {
-        return await prisma.terminals.create({
-          data: {
-            ...createData,
-            customer_id: BigInt(data.customer_id)
-          }
-        });
-      }
-
       return await prisma.terminals.create({
-        data: createData
+        data: {
+          serial_number: data.serial_number,
+          firmware: data.firmware,
+          terminal_type: data.terminal_type,
+          last_seen: data.last_seen || new Date(),
+          customer_id: BigInt(data.customer_id)
+        }
       });
     } catch (error) {
       logger.error(`Error creating terminal: ${error instanceof Error ? error.message : String(error)}`);
@@ -147,7 +139,7 @@ export class TerminalRepository {
       if (data.terminal_type !== undefined) updateData.terminal_type = data.terminal_type;
       if (data.last_seen !== undefined) updateData.last_seen = data.last_seen;
       if (data.customer_id !== undefined) {
-        updateData.customer_id = typeof data.customer_id === 'number' ? BigInt(data.customer_id) : null;
+        updateData.customer_id = BigInt(data.customer_id);
       }
       
       return await prisma.terminals.update({
@@ -201,33 +193,18 @@ export class TerminalRepository {
    */
   static async upsert(data: TerminalCreateInput): Promise<Terminal | null> {
     try {
-      const upsertData = {
-        serial_number: data.serial_number,
-        firmware: data.firmware,
-        terminal_type: data.terminal_type,
-        last_seen: new Date()
-      };
-
-      if (typeof data.customer_id === 'number') {
-        return await prisma.terminals.upsert({
-          where: { serial_number: data.serial_number },
-          create: {
-            ...upsertData,
-            customer_id: BigInt(data.customer_id)
-          },
-          update: {
-            last_seen: new Date(),
-            customer_id: BigInt(data.customer_id)
-          }
-        });
-      }
-
       return await prisma.terminals.upsert({
         where: { serial_number: data.serial_number },
-        create: upsertData,
+        create: {
+          serial_number: data.serial_number,
+          firmware: data.firmware,
+          terminal_type: data.terminal_type,
+          last_seen: new Date(),
+          customer_id: BigInt(data.customer_id)
+        },
         update: {
           last_seen: new Date(),
-          customer_id: null
+          customer_id: BigInt(data.customer_id)
         }
       });
     } catch (error) {
