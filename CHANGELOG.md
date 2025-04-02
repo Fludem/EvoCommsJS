@@ -1,5 +1,25 @@
 # EvoComms JS Changelog
 
+## 0.0.2 (Pre-Alpha)
+
+### EvoTime API Integration
+- Added integration with EvoTime API for terminal resolution
+- Implemented customer lookup and synchronization
+- Added automatic customer creation from EvoTime data
+- Enhanced terminal registration with customer validation
+
+### Database Schema Updates
+- Modified terminals table to require customer association
+- Updated schema to enforce referential integrity
+- Added evotime_tenant_id to customers table
+- Improved type safety in database operations
+
+### Terminal Registration Improvements
+- Enhanced terminal registration flow with customer validation
+- Added graceful connection handling for unregistered terminals
+- Improved error handling and logging during registration
+- Updated terminal repository to enforce customer relationships
+
 ## 0.0.1 (Pre-Alpha)
 
 ### Architecture & Dependency Injection
