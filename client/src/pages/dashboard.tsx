@@ -1,5 +1,3 @@
-import { Activity, Clock, Database, Users } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -17,59 +15,221 @@ import {
   YAxis,
 } from "recharts"
 
+// Component for Clocking Events Card
+function ClockingEventsCard() {
+  return (
+    <Card className="col-span-2">
+      <CardHeader className="pb-2">
+        <CardTitle>Clocking Events (Last 24 Hours)</CardTitle>
+        <CardDescription>Hourly breakdown of clocking events received</CardDescription>
+      </CardHeader>
+      <CardContent className="pl-2">
+        <ChartContainer className="h-[300px] w-full"
+          config={{
+            received: {
+              label: "Received",
+              color: "var(--chart-1)",
+            },
+            sent: {
+              label: "Sent to SaaS",
+              color: "var(--chart-3)",
+            },
+          }}
+        >
+            <AreaChart data={generateHourlyData(24)} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="hour"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(hour) => `${hour}:00`}
+              />
+              <YAxis className="text-xs fill-muted-foreground" />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <defs>
+                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-received)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-received)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              </defs>
+              <Area
+                type="natural"
+                dataKey="received"
+                stackId="1"
+                stroke="var(--color-received)"
+                fill="var(--color-received)"
+                fillOpacity={0.3}
+              />
+            </AreaChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function ObservabilityDashboard() {
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-green-500">
-          <div className="p-4 flex flex-row items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Connected Clocking Machines</p>
-              <h3 className="text-2xl font-bold mt-1">247</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                <span className="text-green-500 font-medium">↑ 12</span> from last hour
-              </p>
-            </div>
-            <Users className="h-8 w-8 text-green-500 opacity-80" />
+      <div className="relative overflow-hidden p-4 sm:p-5 bg-white border border-gray-200 rounded-xl shadow-2xs before:absolute before:top-0 before:end-0 before:size-full before:bg-linear-to-br before:from-purple-100 before:via-transparent before:blur-xl dark:bg-neutral-800 dark:border-neutral-700 dark:before:from-purple-800/30 dark:before:via-transparent">
+        <div className="relative z-10">
+          <div className="flex justify-between gap-x-3">
+        <span className="mb-3 inline-flex justify-center items-center size-8 md:size-10 rounded-lg bg-white text-gray-700 shadow-xs dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400">
+          <svg className="shrink-0 size-4 md:size-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </span>
+        <div>
+        </div>
+      </div>
+      <h2 className="text-sm md:text-base text-gray-800 dark:text-neutral-200">
+        Total Users
+      </h2>
+
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-3">
+        <h3 className="text-lg md:text-2xl font-semibold text-gray-800 dark:text-neutral-200">
+          356
+        </h3>
+        
+      </div>
+    </div>
+  </div>
+  <div className="relative overflow-hidden p-4 sm:p-5 bg-white border border-gray-200 rounded-xl shadow-2xs before:absolute before:top-0 before:end-0 before:size-full before:bg-linear-to-br before:from-purple-100 before:via-transparent before:blur-xl dark:bg-neutral-800 dark:border-neutral-700 dark:before:from-purple-800/30 dark:before:via-transparent">
+    <div className="relative z-10">
+      <div className="flex justify-between gap-x-3">
+        <span className="mb-3 inline-flex justify-center items-center size-8 md:size-10 rounded-lg bg-white text-gray-700 shadow-xs dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400">
+          <svg className="shrink-0 size-4 md:size-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </span>
+        <div>
+        </div>
+      </div>
+      <h2 className="text-sm md:text-base text-gray-800 dark:text-neutral-200">
+        Total Users
+      </h2>
+
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-3">
+        <h3 className="text-lg md:text-2xl font-semibold text-gray-800 dark:text-neutral-200">
+          356
+        </h3>
+        <div className="flex items-center -space-x-2">
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <img className="hs-tooltip-toggle shrink-0 size-7 border-2 border-white rounded-full dark:border-neutral-800" src="https://images.unsplash.com/photo-1679412330254-90cb240038c5?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=facearea&amp;facepad=2.5&amp;w=320&amp;h=320&amp;q=80" alt="Avatar"/>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700 hidden" role="tooltip" style={{position: 'fixed', left: '183.906px', top: '66px'}}>
+              Lewis Clarke
+            </span>
           </div>
-        </Card>
-        <Card className="border-l-4 border-l-blue-500">
-          <div className="p-4 flex flex-row items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Websocket Sessions</p>
-              <h3 className="text-2xl font-bold mt-1">312</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                <span className="text-blue-500 font-medium">↑ 24</span> from last hour
-              </p>
-            </div>
-            <Activity className="h-8 w-8 text-blue-500 opacity-80" />
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <span className="hs-tooltip-toggle flex shrink-0 justify-center items-center size-7 bg-gray-200 border-2 border-white text-gray-700 text-xs font-medium uppercase rounded-full dark:bg-neutral-700 dark:border-neutral-800 dark:text-neutral-300">
+              L
+            </span>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700" role="tooltip" style={{position: 'fixed', left: '207.934px', top: '66px'}}>
+              Lori Hunter
+            </span>
           </div>
-        </Card>
-        <Card className="border-l-4 border-l-purple-500">
-          <div className="p-4 flex flex-row items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Clocking Events Today</p>
-              <h3 className="text-2xl font-bold mt-1">8,942</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                <span className="text-green-500 font-medium">↑ 16%</span> from yesterday
-              </p>
-            </div>
-            <Clock className="h-8 w-8 text-purple-500 opacity-80" />
+
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <img className="hs-tooltip-toggle shrink-0 size-7 border-2 border-white rounded-full dark:border-neutral-800" src="https://images.unsplash.com/photo-1659482634023-2c4fda99ac0c?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=facearea&amp;facepad=2.5&amp;w=320&amp;h=320&amp;q=80" alt="Avatar"/>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700" role="tooltip" style={{position: 'fixed', left: '230.676px', top: '66px'}}>
+              Ella Lauda
+            </span>
           </div>
-        </Card>
-        <Card className="border-l-4 border-l-emerald-500">
-          <div className="p-4 flex flex-row items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">SaaS Platform Sync Status</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                <span className="font-bold">Healthy</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Last sync: 2 minutes ago</p>
-            </div>
-            <Database className="h-8 w-8 text-emerald-500 opacity-80" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div className="relative overflow-hidden p-4 sm:p-5 bg-white border border-gray-200 rounded-xl shadow-2xs before:absolute before:top-0 before:end-0 before:size-full before:bg-linear-to-br before:from-purple-100 before:via-transparent before:blur-xl dark:bg-neutral-800 dark:border-neutral-700 dark:before:from-purple-800/30 dark:before:via-transparent">
+    <div className="relative z-10">
+      <div className="flex justify-between gap-x-3">
+        <span className="mb-3 inline-flex justify-center items-center size-8 md:size-10 rounded-lg bg-white text-gray-700 shadow-xs dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400">
+          <svg className="shrink-0 size-4 md:size-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </span>
+        <div>
+        </div>
+      </div>
+      <h2 className="text-sm md:text-base text-gray-800 dark:text-neutral-200">
+        Total Users
+      </h2>
+
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-3">
+        <h3 className="text-lg md:text-2xl font-semibold text-gray-800 dark:text-neutral-200">
+          356
+        </h3>
+        <div className="flex items-center -space-x-2">
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <img className="hs-tooltip-toggle shrink-0 size-7 border-2 border-white rounded-full dark:border-neutral-800" src="https://images.unsplash.com/photo-1679412330254-90cb240038c5?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=facearea&amp;facepad=2.5&amp;w=320&amp;h=320&amp;q=80" alt="Avatar"/>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700 hidden" role="tooltip" style={{position: 'fixed', left: '183.906px', top: '66px'}}>
+              Lewis Clarke
+            </span>
           </div>
-        </Card>
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <span className="hs-tooltip-toggle flex shrink-0 justify-center items-center size-7 bg-gray-200 border-2 border-white text-gray-700 text-xs font-medium uppercase rounded-full dark:bg-neutral-700 dark:border-neutral-800 dark:text-neutral-300">
+              L
+            </span>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700" role="tooltip" style={{position: 'fixed', left: '207.934px', top: '66px'}}>
+              Lori Hunter
+            </span>
+          </div>
+
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <img className="hs-tooltip-toggle shrink-0 size-7 border-2 border-white rounded-full dark:border-neutral-800" src="https://images.unsplash.com/photo-1659482634023-2c4fda99ac0c?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=facearea&amp;facepad=2.5&amp;w=320&amp;h=320&amp;q=80" alt="Avatar"/>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700" role="tooltip" style={{position: 'fixed', left: '230.676px', top: '66px'}}>
+              Ella Lauda
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div className="relative overflow-hidden p-4 sm:p-5 bg-white border border-gray-200 rounded-xl shadow-2xs before:absolute before:top-0 before:end-0 before:size-full before:bg-linear-to-br before:from-purple-100 before:via-transparent before:blur-xl dark:bg-neutral-800 dark:border-neutral-700 dark:before:from-purple-800/30 dark:before:via-transparent">
+    <div className="relative z-10">
+      <div className="flex justify-between gap-x-3">
+        <span className="mb-3 inline-flex justify-center items-center size-8 md:size-10 rounded-lg bg-white text-gray-700 shadow-xs dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400">
+          <svg className="shrink-0 size-4 md:size-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </span>
+        <div>
+        </div>
+      </div>
+      <h2 className="text-sm md:text-base text-gray-800 dark:text-neutral-200">
+        Total Users
+      </h2>
+
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-3">
+        <h3 className="text-lg md:text-2xl font-semibold text-gray-800 dark:text-neutral-200">
+          356
+        </h3>
+        <div className="flex items-center -space-x-2">
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <img className="hs-tooltip-toggle shrink-0 size-7 border-2 border-white rounded-full dark:border-neutral-800" src="https://images.unsplash.com/photo-1679412330254-90cb240038c5?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=facearea&amp;facepad=2.5&amp;w=320&amp;h=320&amp;q=80" alt="Avatar"/>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700 hidden" role="tooltip" style={{position: 'fixed', left: '183.906px', top: '66px'}}>
+              Lewis Clarke
+            </span>
+          </div>
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <span className="hs-tooltip-toggle flex shrink-0 justify-center items-center size-7 bg-gray-200 border-2 border-white text-gray-700 text-xs font-medium uppercase rounded-full dark:bg-neutral-700 dark:border-neutral-800 dark:text-neutral-300">
+              L
+            </span>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700" role="tooltip" style={{position: 'fixed', left: '207.934px', top: '66px'}}>
+              Lori Hunter
+            </span>
+          </div>
+
+          <div className="hs-tooltip hidden sm:inline-block hover:z-10">
+            <img className="hs-tooltip-toggle shrink-0 size-7 border-2 border-white rounded-full dark:border-neutral-800" src="https://images.unsplash.com/photo-1659482634023-2c4fda99ac0c?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=facearea&amp;facepad=2.5&amp;w=320&amp;h=320&amp;q=80" alt="Avatar"/>
+            <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 inline-block absolute invisible z-20 py-1.5 px-2.5 bg-gray-900 text-xs text-white rounded-lg whitespace-nowrap dark:bg-neutral-700" role="tooltip" style={{position: 'fixed', left: '230.676px', top: '66px'}}>
+              Ella Lauda
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
       </div>
       <Tabs defaultValue="overview">
         <TabsList>
@@ -79,55 +239,7 @@ export default function ObservabilityDashboard() {
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle>Clocking Events (Last 24 Hours)</CardTitle>
-                <CardDescription>Hourly breakdown of clocking events received</CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <ChartContainer
-                  config={{
-                    received: {
-                      label: "Received",
-                      color: "hsl(var(--chart-1))",
-                    },
-                    sent: {
-                      label: "Sent to SaaS",
-                      color: "hsl(var(--chart-2))",
-                    },
-                  }}
-                >
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={generateHourlyData(24)} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis
-                        dataKey="hour"
-                        className="text-xs fill-muted-foreground"
-                        tickFormatter={(hour) => `${hour}:00`}
-                      />
-                      <YAxis className="text-xs fill-muted-foreground" />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Area
-                        type="monotone"
-                        dataKey="received"
-                        stackId="1"
-                        stroke="var(--color-received)"
-                        fill="var(--color-received)"
-                        fillOpacity={0.3}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="sent"
-                        stackId="2"
-                        stroke="var(--color-sent)"
-                        fill="var(--color-sent)"
-                        fillOpacity={0.3}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
+            <ClockingEventsCard />
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle>Recent Activity</CardTitle>
@@ -162,7 +274,7 @@ export default function ObservabilityDashboard() {
                   config={{
                     connections: {
                       label: "Connections",
-                      color: "hsl(var(--chart-3))",
+                      color: "var(--chart-1)",
                     },
                   }}
                 >
@@ -199,11 +311,11 @@ export default function ObservabilityDashboard() {
                   config={{
                     sent: {
                       label: "Sent",
-                      color: "hsl(var(--chart-4))",
+                      color: "hsl(var(--chart-1))",
                     },
                     failed: {
                       label: "Failed",
-                      color: "hsl(var(--chart-5))",
+                      color: "hsl(var(--chart-2))",
                     },
                   }}
                 >
