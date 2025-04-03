@@ -16,7 +16,7 @@ export function Layout({ children }: LayoutProps) {
       <Sidebar collapsed={collapsed} onCollapsedChange={setCollapsed} />
       <main className={cn(
         "pt-16 min-h-screen w-full max-w-full overflow-x-hidden transform transition-transform duration-300 ease-in-out hardware-accelerated",
-        collapsed ? "md:translate-x-16 pr-16" : "md:translate-x-52"
+        collapsed ? "md:translate-x-16 pr-16" : "md:translate-x-52 pr-52"
       )}>
         <div className="p-4 md:p-6 space-y-4 w-full max-w-full overflow-x-hidden">
           {children}
