@@ -13,11 +13,11 @@ import logger from '../utils/logger';
  * @param updated_at - The date and time the terminal was last updated
  */
 export interface Terminal {
-  id: bigint;
+  id: number;
   serial_number: string;
   firmware: string;
   terminal_type: 'TIMYAI' | 'VF200' | 'ANVIZ' | 'CS100' | 'ZKTECO';
-  customer_id: bigint;
+  customer_id: number;
   last_seen: Date;
   created_at: Date;
   updated_at: Date;
@@ -63,7 +63,12 @@ export class TerminalRepository {
    */
   static async findAll(): Promise<Terminal[]> {
     try {
-      return await prisma.terminals.findMany();
+      const results = await prisma.terminals.findMany();
+      return results.map(terminal => ({
+        ...terminal,
+        id: Number(terminal.id),
+        customer_id: Number(terminal.customer_id)
+      }));
     } catch (error) {
       logger.error(`Error finding all terminals: ${error instanceof Error ? error.message : String(error)}`);
       return [];
@@ -77,9 +82,17 @@ export class TerminalRepository {
    */
   static async findById(id: number): Promise<Terminal | null> {
     try {
-      return await prisma.terminals.findUnique({
-        where: { id: BigInt(id) },
+      const terminal = await prisma.terminals.findUnique({
+        where: { id },
       });
+      
+      if (!terminal) return null;
+      
+      return {
+        ...terminal,
+        id: Number(terminal.id),
+        customer_id: Number(terminal.customer_id)
+      };
     } catch (error) {
       logger.error(`Error finding terminal by ID: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -93,9 +106,17 @@ export class TerminalRepository {
    */
   static async findBySerialNumber(serialNumber: string): Promise<Terminal | null> {
     try {
-      return await prisma.terminals.findUnique({
+      const terminal = await prisma.terminals.findUnique({
         where: { serial_number: serialNumber },
       });
+      
+      if (!terminal) return null;
+      
+      return {
+        ...terminal,
+        id: Number(terminal.id),
+        customer_id: Number(terminal.customer_id)
+      };
     } catch (error) {
       logger.error(`Error finding terminal by serial number: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -109,15 +130,21 @@ export class TerminalRepository {
    */
   static async create(data: TerminalCreateInput): Promise<Terminal | null> {
     try {
-      return await prisma.terminals.create({
+      const terminal = await prisma.terminals.create({
         data: {
           serial_number: data.serial_number,
           firmware: data.firmware,
           terminal_type: data.terminal_type,
           last_seen: data.last_seen || new Date(),
-          customer_id: BigInt(data.customer_id)
+          customer_id: data.customer_id
         }
       });
+      
+      return {
+        ...terminal,
+        id: Number(terminal.id),
+        customer_id: Number(terminal.customer_id)
+      };
     } catch (error) {
       logger.error(`Error creating terminal: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -139,13 +166,19 @@ export class TerminalRepository {
       if (data.terminal_type !== undefined) updateData.terminal_type = data.terminal_type;
       if (data.last_seen !== undefined) updateData.last_seen = data.last_seen;
       if (data.customer_id !== undefined) {
-        updateData.customer_id = BigInt(data.customer_id);
+        updateData.customer_id = data.customer_id;
       }
       
-      return await prisma.terminals.update({
-        where: { id: BigInt(id) },
+      const terminal = await prisma.terminals.update({
+        where: { id },
         data: updateData,
       });
+      
+      return {
+        ...terminal,
+        id: Number(terminal.id),
+        customer_id: Number(terminal.customer_id)
+      };
     } catch (error) {
       logger.error(`Error updating terminal: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -159,10 +192,16 @@ export class TerminalRepository {
    */
   static async updateLastSeen(id: number): Promise<Terminal | null> {
     try {
-      return await prisma.terminals.update({
-        where: { id: BigInt(id) },
+      const terminal = await prisma.terminals.update({
+        where: { id },
         data: { last_seen: new Date() },
       });
+      
+      return {
+        ...terminal,
+        id: Number(terminal.id),
+        customer_id: Number(terminal.customer_id)
+      };
     } catch (error) {
       logger.error(`Error updating terminal last seen: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -177,7 +216,7 @@ export class TerminalRepository {
   static async delete(id: number): Promise<boolean> {
     try {
       await prisma.terminals.delete({
-        where: { id: BigInt(id) },
+        where: { id },
       });
       return true;
     } catch (error) {
@@ -193,20 +232,26 @@ export class TerminalRepository {
    */
   static async upsert(data: TerminalCreateInput): Promise<Terminal | null> {
     try {
-      return await prisma.terminals.upsert({
+      const terminal = await prisma.terminals.upsert({
         where: { serial_number: data.serial_number },
         create: {
           serial_number: data.serial_number,
           firmware: data.firmware,
           terminal_type: data.terminal_type,
           last_seen: new Date(),
-          customer_id: BigInt(data.customer_id)
+          customer_id: data.customer_id
         },
         update: {
           last_seen: new Date(),
-          customer_id: BigInt(data.customer_id)
+          customer_id: data.customer_id
         }
       });
+      
+      return {
+        ...terminal,
+        id: Number(terminal.id),
+        customer_id: Number(terminal.customer_id)
+      };
     } catch (error) {
       logger.error(`Error upserting terminal: ${error instanceof Error ? error.message : String(error)}`);
       return null;

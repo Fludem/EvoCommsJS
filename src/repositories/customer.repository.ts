@@ -11,7 +11,7 @@ import logger from '../utils/logger';
  * @param updated_at - The date and time the customer was last updated
  */
 export interface Customer {
-  id: bigint;
+  id: number;
   company_name: string;
   domain: string;
   evotime_tenant_id: string;
@@ -53,7 +53,11 @@ export class CustomerRepository {
    */
   static async findAll(): Promise<Customer[]> {
     try {
-      return await prisma.customers.findMany();
+      const results = await prisma.customers.findMany();
+      return results.map(customer => ({
+        ...customer,
+        id: Number(customer.id)
+      }));
     } catch (error) {
       logger.error(`Error finding all customers: ${error instanceof Error ? error.message : String(error)}`);
       return [];
@@ -67,9 +71,16 @@ export class CustomerRepository {
    */
   static async findById(id: number): Promise<Customer | null> {
     try {
-      return await prisma.customers.findUnique({
-        where: { id: BigInt(id) },
+      const customer = await prisma.customers.findUnique({
+        where: { id },
       });
+      
+      if (!customer) return null;
+      
+      return {
+        ...customer,
+        id: Number(customer.id)
+      };
     } catch (error) {
       logger.error(`Error finding customer by ID: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -83,9 +94,16 @@ export class CustomerRepository {
    */
   static async findByDomain(domain: string): Promise<Customer | null> {
     try {
-      return await prisma.customers.findUnique({
+      const customer = await prisma.customers.findUnique({
         where: { domain },
       });
+      
+      if (!customer) return null;
+      
+      return {
+        ...customer,
+        id: Number(customer.id)
+      };
     } catch (error) {
       logger.error(`Error finding customer by domain: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -99,9 +117,16 @@ export class CustomerRepository {
    */
   static async findByEvoTimeTenantId(tenantId: string): Promise<Customer | null> {
     try {
-      return await prisma.customers.findUnique({
+      const customer = await prisma.customers.findUnique({
         where: { evotime_tenant_id: tenantId },
       });
+      
+      if (!customer) return null;
+      
+      return {
+        ...customer,
+        id: Number(customer.id)
+      };
     } catch (error) {
       logger.error(`Error finding customer by EvoTime tenant ID: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -115,9 +140,14 @@ export class CustomerRepository {
    */
   static async create(data: CustomerCreateInput): Promise<Customer | null> {
     try {
-      return await prisma.customers.create({
+      const customer = await prisma.customers.create({
         data,
       });
+      
+      return {
+        ...customer,
+        id: Number(customer.id)
+      };
     } catch (error) {
       logger.error(`Error creating customer: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -132,10 +162,15 @@ export class CustomerRepository {
    */
   static async update(id: number, data: CustomerUpdateInput): Promise<Customer | null> {
     try {
-      return await prisma.customers.update({
-        where: { id: BigInt(id) },
+      const customer = await prisma.customers.update({
+        where: { id },
         data,
       });
+      
+      return {
+        ...customer,
+        id: Number(customer.id)
+      };
     } catch (error) {
       logger.error(`Error updating customer: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -149,7 +184,7 @@ export class CustomerRepository {
    */
   static async upsert(data: CustomerCreateInput): Promise<Customer | null> {
     try {
-      return await prisma.customers.upsert({
+      const customer = await prisma.customers.upsert({
         where: { evotime_tenant_id: data.evotime_tenant_id },
         create: data,
         update: {
@@ -157,6 +192,11 @@ export class CustomerRepository {
           domain: data.domain
         }
       });
+      
+      return {
+        ...customer,
+        id: Number(customer.id)
+      };
     } catch (error) {
       logger.error(`Error upserting customer: ${error instanceof Error ? error.message : String(error)}`);
       return null;
@@ -171,7 +211,7 @@ export class CustomerRepository {
   static async delete(id: number): Promise<boolean> {
     try {
       await prisma.customers.delete({
-        where: { id: BigInt(id) },
+        where: { id },
       });
       return true;
     } catch (error) {

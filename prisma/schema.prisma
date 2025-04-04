@@ -11,12 +11,12 @@ datasource db {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model clockings {
-  id          BigInt    @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   time        DateTime  @db.Timestamptz(6)
-  terminal_id BigInt
+  terminal_id Int
   updated_at  DateTime  @default(now()) @db.Timestamp(6)
   created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  employee_id BigInt
+  employee_id Int
   sent_to_api Boolean   @default(false)
   employees   employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
   terminals   terminals @relation(fields: [terminal_id], references: [id], onDelete: Cascade)
@@ -25,7 +25,7 @@ model clockings {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model customers {
-  id                BigInt      @id(map: "Customers_pkey") @default(autoincrement())
+  id                Int         @id(map: "Customers_pkey") @default(autoincrement())
   company_name      String
   domain            String      @unique
   updated_at        DateTime    @default(now()) @db.Timestamp(6)
@@ -36,10 +36,10 @@ model customers {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model employees {
-  id                 BigInt      @id @default(autoincrement())
+  id                 Int         @id @default(autoincrement())
   name               String?
   terminal_enroll_id BigInt
-  source_terminal_id BigInt
+  source_terminal_id Int
   updated_at         DateTime    @default(now()) @db.Timestamp(6)
   created_at         DateTime    @default(now()) @db.Timestamptz(6)
   clockings          clockings[]
@@ -49,17 +49,32 @@ model employees {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model terminals {
-  id            BigInt        @id(map: "Terminals_pkey") @default(autoincrement())
+  id            Int           @id(map: "Terminals_pkey") @default(autoincrement())
   serial_number String        @unique(map: "Terminals_serial_number_key")
   firmware      String
   last_seen     DateTime      @default(now()) @db.Timestamp(6)
-  customer_id   BigInt
+  customer_id   Int
   created_at    DateTime      @default(now()) @db.Timestamptz(6)
   updated_at    DateTime      @default(now()) @db.Timestamp(6)
   terminal_type terminal_type
   clockings     clockings[]
   employees     employees[]
   customers     customers     @relation(fields: [customer_id], references: [id], onDelete: Cascade, map: "Terminals_customer_id_fkey")
+}
+
+model activity_logs {
+  id            Int       @id @default(autoincrement())
+  activity_type String    @db.VarChar(50)
+  actor_id      Int
+  target_type   String?   @db.VarChar(50)
+  target_id     Int?
+  action        String    @db.VarChar(50)
+  details       Json?
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([actor_id], map: "idx_activity_logs_actor")
+  @@index([created_at], map: "idx_activity_logs_created_at")
+  @@index([target_type, target_id], map: "idx_activity_logs_target")
 }
 
 /// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
