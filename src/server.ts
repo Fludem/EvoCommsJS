@@ -3,6 +3,8 @@ import { TimyTerminal } from './comms/TimyAI/types/shared';
 import { testConnection as testDbConnection } from './utils/prisma';
 import logger from './utils/logger';
 import container from './di/container';
+import express from 'express';
+import { setupAPI } from './api';
 
 // Define types for events
 interface ClockingData {
@@ -25,11 +27,17 @@ interface UserData {
 export class Server {
   private protocolServers: Map<string, TimyAIServer> = new Map();
   private timyServer: TimyAIServer;
+  private expressApp: express.Express;
+  private apiPort: number;
 
   constructor() {
     // Resolve TimyAIServer from the DI container
     this.timyServer = container.resolve(TimyAIServer);
     this.setupEventHandlers();
+    
+    // Initialize Express app
+    this.expressApp = express();
+    this.apiPort = parseInt(process.env.API_PORT || '3000', 10);
   }
 
   /**
@@ -62,6 +70,7 @@ export class Server {
     try {
       await this.initializeDatabase();
       await this.initializeServers();
+      await this.initializeAPI();
       await this.startListening();
     } catch (error) {
       logger.error(`Error starting main server: ${error instanceof Error ? error.message : String(error)}`);
@@ -82,9 +91,18 @@ export class Server {
     this.protocolServers.set('TimyAI', this.timyServer);
   }
 
+  private async initializeAPI(): Promise<void> {
+    logger.info('Initializing API server...');
+    setupAPI(this.expressApp);
+  }
+
   private async startListening(): Promise<void> {
     logger.info('Starting communication servers...');
     this.timyServer.start();
+    
+    this.expressApp.listen(this.apiPort, () => {
+      logger.info(`API server listening on port ${this.apiPort}`);
+    });
   }
 
   public async stop(): Promise<void> {
