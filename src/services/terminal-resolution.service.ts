@@ -35,7 +35,7 @@ export class TerminalResolutionService {
    * @param serialNumber - The serial number of the terminal to resolve
    * @returns The customer ID if found and created/updated, null otherwise
    */
-  async resolveTerminal(serialNumber: string): Promise<bigint | null> {
+  async resolveTerminal(serialNumber: string): Promise<number | null> {
     try {
       const response = await fetch(`${this.API_BASE_URL}/terminals/${serialNumber}`);
       
