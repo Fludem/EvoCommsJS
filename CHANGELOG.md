@@ -1,5 +1,19 @@
 # EvoComms JS Changelog
 
+## 0.0.3 (Pre-Alpha)
+
+### Frontend Development
+- Added React TypeScript Vite frontend with ShadCN UI
+- Implemented dashboard page with stats and metrics
+- Created shared Layout component for consistent UI across pages
+- Set up React Router for navigation
+- Implemented dark mode theme support
+
+### Backend Enhancements
+- Installed ExpressJS for API endpoints to be used by React frontend
+- Set up API integration between frontend and existing backend services
+- Added proper routing and endpoint structure
+
 ## 0.0.2 (Pre-Alpha)
 
 ### EvoTime API Integration
