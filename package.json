@@ -43,6 +43,7 @@
     "@types/ws": "^8.18.0",
     "class-transformer": "^0.5.1",
     "dotenv": "^16.4.7",
+    "express": "^5.1.0",
     "pg": "^8.14.1",
     "pg-pool": "^3.8.0",
     "pino-pretty": "^13.0.0",
