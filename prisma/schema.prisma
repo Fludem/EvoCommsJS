@@ -65,7 +65,7 @@ model terminals {
 model activity_logs {
   id            Int       @id @default(autoincrement())
   activity_type String    @db.VarChar(50)
-  actor_id      Int
+  actor_id      Int?
   target_type   String?   @db.VarChar(50)
   target_id     Int?
   action        String    @db.VarChar(50)
