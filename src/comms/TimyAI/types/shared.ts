@@ -1,6 +1,6 @@
 import { TimyAIGetAllLogRequest, TimyAIRegisterRequest, TimyAISendUserRequest, TimyAISetUserInfoRequest } from "./commands";
 import { TimyAIContinueAllLogRequest, TimyAIGetUserListRequest, TimyAISendLogRequest } from "./commands";
-import { Expose } from "class-transformer";
+import { Expose, instanceToPlain } from "class-transformer";
 import { TimyAIResponse } from "./responses";
 
 export interface DeviceInfo {
@@ -27,6 +27,17 @@ export interface TimyTerminal {
     cpuSerialNumber: string;
     deviceInfo: DeviceInfo;
 } 
+
+export class TimyAIMessage {
+/**
+     * Serialize the command to a JSON string.
+     * Used due to using expose to have improved variable names.
+     * @returns The serialized command
+     */
+public toPlain(): string {
+    return JSON.stringify(instanceToPlain(this));
+}
+}
 
 export type TerminalToServerCommand = 
     | TimyAIRegisterRequest 

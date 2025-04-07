@@ -1,11 +1,11 @@
 import { Expose, Type } from "class-transformer";
-import { DeviceInfo } from "./shared";
+import { DeviceInfo, TimyAIMessage } from "./shared";
 
-export class TimyAITerminalCommandBase {
+export class TimyAITerminalCommandBase extends TimyAIMessage {
     @Expose({ name: 'cmd' })
     command!: string;
 }
-export class TimyAIServerCommandBase {
+export class TimyAIServerCommandBase extends TimyAIMessage {
     @Expose({ name: 'cmd' })
     command!: string;
 }
