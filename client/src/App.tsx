@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Dashboard from './pages/dashboard'
 import './index.css'
 import { ThemeProvider } from './components/ui/theme-provider'
-import { Layout } from './components/layout'
+import { Layout } from './components/layouts/layout'
 
 function App() {
   return (
