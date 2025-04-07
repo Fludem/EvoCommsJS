@@ -26,12 +26,6 @@ interface UserData {
   [key: string]: unknown;
 }
 
-// Extended TimyTerminal interface to
-//  include potential firmware property
-// that isn't stored in DB yet, TODO: Remove this and change DB
-interface ExtendedTimyTerminal extends TimyTerminal {
-  firmware?: string;
-}
 
 export class Server {
   private protocolServers: Map<string, TimyAIServer> = new Map();
@@ -61,36 +55,33 @@ export class Server {
       const terminalData = await TerminalRepository.findBySerialNumber(terminal.serialNumber);
       
       if (terminalData) {
-        // Log terminal registration
-        const extendedTerminal = terminal as ExtendedTimyTerminal;
-        
         await ActivityLogService.logTerminalRegistered(
           terminalData.id,
           terminal.serialNumber,
           terminalData.customer_id,
           {
-            ...(extendedTerminal.firmware && { firmware: extendedTerminal.firmware }),
+            ...(terminal.deviceInfo.firmware && { firmware: terminal.deviceInfo.firmware }),
             terminal_type: terminalData.terminal_type
           }
         );
       }
     });
 
-    this.timyServer.on('clockingReceived', async (data: ClockingData) => {
-      logger.info(`Main Server: Clocking received from terminal: ${data.terminalSN}`);
+    this.timyServer.on('clockingsReceived', async (data: ClockingData) => {
+      logger.info(`Main Server: Clockings received from terminal: ${data.terminalSN}`);
       
-      // Find the terminal in the database to get its ID
       const terminal = await TerminalRepository.findBySerialNumber(data.terminalSN);
       
+      /**
+       * Here we want to loop through the clockings as clockingData
+       * contain an array of clockings
+       */
       if (terminal) {
-        // We can't directly log the clocking creation here because we don't have the clocking ID yet
-        // A better approach would be to log this in the handler that actually creates the clocking
-        // But for now, we can log a generic activity
         await ActivityLogService.logActivity(
           ActivityType.CLOCKING_CREATED,
           terminal.id,
           TargetType.CLOCKING,
-          null, // We don't know the clocking ID yet
+          null,
           ActionType.CREATE,
           {
             employee_enroll_id: data.enrollId,

@@ -25,7 +25,7 @@ export class ClockingDataHandler implements ITimyAIMessageHandler {
     handle(ws: WebSocket, message: TimyAISendLogRequest, protocolEmitter: EventEmitter): void {
         this.logger.info(`Received ${message.count} clocking(s) from ${message.serialNumber}`);
         
-        protocolEmitter.emit('clockingReceived', {
+        protocolEmitter.emit('clockingsReceived', {
             terminalSN: message.serialNumber,
             clockings: message.records,
             logIndex: message.logIndex
