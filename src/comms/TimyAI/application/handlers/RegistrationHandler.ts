@@ -5,10 +5,18 @@ import { injectable, inject } from 'tsyringe';
 import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
 import { TimyAIRegisterRequest } from '../../types/commands';
 import { TimyAIRegisterResponse } from '../../types/responses';
-import { TimyTerminal } from '../../types/shared';
+import { TerminalConnectedDetails, TimyTerminal } from '../../types/shared';
 import { createLogger } from '../../../../utils/logger';
 import { TerminalRepository } from '../../../../repositories/terminal.repository';
 import { TerminalResolutionService } from '../../../../services/terminal-resolution.service';
+import { ActivityLogService } from '../../../../services/activity-log.service';
+
+// Interface for internal WebSocket with socket access
+interface ExtendedWebSocket extends WebSocket {
+    _socket?: {
+        remoteAddress?: string;
+    };
+}
 
 /**
  * Handles the registration of a TimyAI terminal
@@ -57,6 +65,22 @@ export class RegistrationHandler implements ITimyAIMessageHandler {
             return;
         }
 
+        const extendedWs = ws as ExtendedWebSocket;
+        const ipAddress = extendedWs._socket?.remoteAddress || 'Unknown';
+
+        const terminalConnectedDetails: TerminalConnectedDetails = {
+            serialNumber: terminal.serialNumber,
+            cpuSerialNumber: terminal.cpuSerialNumber,
+            deviceInfo: terminal.deviceInfo,
+            customerId: Number(customerId),
+            customerName: 'Unknown',
+            ipAddress: ipAddress
+        };
+
+        ActivityLogService.logTerminalConnected(
+            dbTerminal,
+            terminalConnectedDetails
+        );
         connectedTerminals.set(terminal.serialNumber, ws);
         this.logger.info(`Terminal registered: ${terminal.serialNumber} (${message.deviceInfo.modelName ?? 'Unknown Model'})`);
 
