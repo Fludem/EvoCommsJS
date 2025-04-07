@@ -13,6 +13,15 @@ export interface DeviceInfo {
     macAddress: string;
 }
 
+export interface TerminalConnectedDetails {
+    serialNumber: string;
+    cpuSerialNumber: string;
+    deviceInfo: DeviceInfo;
+    customerId: number;
+    customerName: string;
+    ipAddress: string;
+}
+
 export interface TimyTerminal {
     serialNumber: string;
     cpuSerialNumber: string;
