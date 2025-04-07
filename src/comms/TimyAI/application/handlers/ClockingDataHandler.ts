@@ -1,6 +1,5 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
-import { instanceToPlain } from 'class-transformer';
 import { injectable } from 'tsyringe';
 import { ITimyAIMessageHandler } from '../interfaces/ITimyAIMessageHandler';
 import { TimyAISendLogRequest } from '../../types/commands';
@@ -31,14 +30,9 @@ export class ClockingDataHandler implements ITimyAIMessageHandler {
             logIndex: message.logIndex
         });
 
-        const responseInstance = new TimyAISendLogResponse();
-        responseInstance.commandSuccessful = true;
-        responseInstance.count = message.count;
-        responseInstance.logIndex = message.logIndex;
-        responseInstance.cloudTime = new Date().toISOString().replace('T', ' ').split('.')[0];
 
-        const plainResponse = instanceToPlain(responseInstance);
+        const plainResponse = new TimyAISendLogResponse(message).toPlain();
         
-        ws.send(JSON.stringify(plainResponse));
+        ws.send(plainResponse);
     }
 } 

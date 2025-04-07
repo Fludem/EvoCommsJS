@@ -35,7 +35,7 @@ export class TerminalResolutionService {
    * @param serialNumber - The serial number of the terminal to resolve
    * @returns The customer ID if found and created/updated, null otherwise
    */
-  async resolveTerminal(serialNumber: string): Promise<number | null> {
+  async resolveTerminalOwner(serialNumber: string): Promise<number | null> {
     try {
       const response = await fetch(`${this.API_BASE_URL}/terminals/${serialNumber}`);
       
@@ -49,7 +49,6 @@ export class TerminalResolutionService {
 
       const data = await response.json() as EvoTimeTerminalResponse;
       
-      // Create or update the customer record
       const customer = await CustomerRepository.upsert({
         company_name: data.customer.company_name,
         domain: data.customer.domain,
