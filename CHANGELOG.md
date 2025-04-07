@@ -1,15 +1,23 @@
 # EvoComms JS Changelog
 
+0.1.0 will be considered ready for testing and in alpha stage. Untl then the project is likely in an unstable or unusable state.
+
+## 0.0.4 (Pre-Alpha)
+
+### Backend
+- Added RESTful API endpoints for Clockings, Terminals, and Customers
+- Implemented API health check endpoint
+
 ## 0.0.3 (Pre-Alpha)
 
-### Frontend Development
+### Frontend
 - Added React TypeScript Vite frontend with ShadCN UI
 - Implemented dashboard page with stats and metrics
 - Created shared Layout component for consistent UI across pages
 - Set up React Router for navigation
 - Implemented dark mode theme support
 
-### Backend Enhancements
+### Backend
 - Installed ExpressJS for API endpoints to be used by React frontend
 - Set up API integration between frontend and existing backend services
 - Added proper routing and endpoint structure
