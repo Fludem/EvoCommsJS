@@ -1,15 +1,13 @@
 import React from "react";
 
-// StatCard component
 interface StatCardProps {
   title: string;
   icon: React.ReactNode;
   statValue: number | string;
   variant: 'purple' | 'blue' | 'green' | 'orange' | 'red';
-  avatars?: boolean;
 }
 
-export function StatCard({ title, icon, statValue, variant, avatars = false }: StatCardProps) {
+export function StatCard({ title, icon, statValue, variant }: StatCardProps) {
   const gradientClasses = {
     purple: "before:from-purple-100 before:via-transparent dark:before:from-purple-800/30 dark:before:via-transparent",
     blue: "before:from-blue-100 before:via-transparent dark:before:from-blue-800/30 dark:before:via-transparent",

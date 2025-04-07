@@ -12,9 +12,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { StatCard } from "@/components/ui/stat-card"
+import { StatCard } from "@/components/dashboard/stat-card"
 import { ClockingEventsCard } from "@/components/dashboard/clocking-events-card"
-import { LucideClock, LucideLink, LucideScanFace } from "lucide-react"
+import { LucideLink, LucideScanFace } from "lucide-react"
 
 export default function ObservabilityDashboard() {
   return (
